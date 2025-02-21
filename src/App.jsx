@@ -16,7 +16,7 @@ function App() {
     <>
       <Navbar />
       <div className="min-h-screen p-6">      
-        <div className="max-w-5xl mx-auto p-2 rounded-3x">
+        <div className="max-w-5xl mx-auto p-2 rounded-3x ">
           <InvestmentForm onCalculate={handleCalculate} setResults={setResults} /> {/* Pasar setResults */}
         </div>
         <Resultado />

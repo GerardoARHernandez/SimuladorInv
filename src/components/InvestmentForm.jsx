@@ -1,4 +1,5 @@
 import { faCalendarDays } from "@fortawesome/free-regular-svg-icons";
+import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 
@@ -14,6 +15,17 @@ const InvestmentForm = ({ onCalculate }) => {
     aportacionPeriodica: "",
     recapitalizacionAnual: "0%",
   });
+
+  const [showInfo, setShowInfo] = useState(false); // Estado para controlar la visibilidad del mensaje
+
+  const toggleInfo = () => {
+    setShowInfo(true); // Alternar la visibilidad del mensaje
+
+    setTimeout(() => {
+     setShowInfo(false); // Alternar la visibilidad del mensaje
+      
+    }, 5000);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -290,6 +302,22 @@ const InvestmentForm = ({ onCalculate }) => {
               Enviar a un Ejecutivo
             </button>
           </div>
+
+          <button
+            type="button"
+            onClick={toggleInfo}
+            className="px-3 py-2 m-2 text-[#0EA2CB] hover:text-[#1C2B54] focus:outline-none"
+          >
+            <FontAwesomeIcon icon={faInfoCircle} className="w-6 h-6" />
+          </button>
+
+          {showInfo && (
+            <div className="z-10 absolute top-16 right-0 bg-white p-4 rounded-lg shadow-lg border border-gray-200 w-64">
+              <p className="text-sm text-gray-700">
+                Envíe su formulario y un ejecutivo se comunicará con usted.
+              </p>
+            </div>
+          )}
 
            {/* Información adicional */}
            <div className="text-center text-gray-600 text-sm">
