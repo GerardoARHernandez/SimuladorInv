@@ -15,15 +15,15 @@ function App() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gray-200 p-6">      
-        <div className="max-w-5xl mx-auto bg-white p-2 rounded-3xl shadow-lg">
+      <div className="min-h-screen p-6">      
+        <div className="max-w-5xl mx-auto p-2 rounded-3x">
           <InvestmentForm onCalculate={handleCalculate} setResults={setResults} /> {/* Pasar setResults */}
         </div>
         <Resultado />
-        <div className='max-w-5xl mx-auto bg-white p-8 rounded-lg shadow-lg'>
+        {results && <div className='max-w-5xl mx-auto bg-white p-8 rounded-lg shadow-lg'> 
           {results && <InvestmentResults results={results} />} {/* Renderizar condicionalmente */}
           {results && <CapitalChart results={results} />}
-        </div>
+        </div>}
       </div>
     </>
   );

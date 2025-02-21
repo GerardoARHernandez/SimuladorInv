@@ -112,10 +112,10 @@ const InvestmentForm = ({ onCalculate }) => {
 
   return (
     <>
-    <div className="p-8 bg-white rounded-lg shadow-lg max-w-5xl mx-0 text-gray-800 font-sans grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className="p-8 bg-gray-200 rounded-xl shadow-xl max-w-5xl mx-0 text-gray-800 font-sans grid grid-cols-1 md:grid-cols-3 gap-4 ">
       {/* Formulario */}
       <div className="col-span-2"> {/* Toma 2/3 del ancho */}
-        <h1 className="text-2xl font-bold text-blue-900 mb-6 uppercase text-center">
+        <h1 className="text-2xl font-bold text-[#1C2B54] mb-6 uppercase text-center">
           Simulador de inversión
         </h1>
         <form onSubmit={handleSubmit} className="space-y-4 shadow-sm">
@@ -128,7 +128,7 @@ const InvestmentForm = ({ onCalculate }) => {
                 name="nombre"
                 value={formData.nombre}
                 onChange={handleChange}
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 hover:border-blue-500 block w-full p-2 border rounded-2xl bg-white focus:ring-blue-400 focus:border-blue-400"
                 required
               />
             </div>
@@ -141,7 +141,7 @@ const InvestmentForm = ({ onCalculate }) => {
                 name="correoElectronico"
                 value={formData.correoElectronico}
                 onChange={handleChange}
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full p-2 border bg-white rounded-2xl hover:border-blue-500 focus:ring-blue-500 focus:border-blue-500"
                 required
               />
             </div>
@@ -155,12 +155,17 @@ const InvestmentForm = ({ onCalculate }) => {
                   name="fechaNacimiento"
                   value={formData.fechaNacimiento}
                   onChange={handleChange}
-                  className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 pr-10 appearance-none -webkit-appearance-none -moz-appearance-none" 
+                  className="mt-1 block w-full p-2 border bg-white rounded-2xl focus:ring-blue-400 focus:border-blue-400 pr-10 appearance-none hover:border-blue-500"
                   required
+                  style={{
+                    // Oculta el icono predeterminado en Chrome, Edge, etc.
+                    WebkitAppearance: "none",
+                    MozAppearance: "textfield", // Para Firefox
+                  }}
                 />
-                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                {/* <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                   <FontAwesomeIcon icon={faCalendarDays} className="text-blue-500" />
-                </div>
+                </div> */}
               </div>
             </div>
 
@@ -173,7 +178,7 @@ const InvestmentForm = ({ onCalculate }) => {
                 name="capitalInicial"
                 value={formData.capitalInicial}
                 onChange={handleChange}
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full p-2 border bg-white rounded-2xl hover:border-blue-500 focus:ring-blue-500 focus:border-blue-500"
                 required
               />
             </div>
@@ -187,7 +192,7 @@ const InvestmentForm = ({ onCalculate }) => {
                 name="anosInvertir"
                 value={formData.anosInvertir}
                 onChange={handleChange}
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full p-2 border bg-white rounded-2xl hover:border-blue-600 focus:ring-blue-400 focus:border-blue-400"
                 required
               />
             </div>
@@ -199,7 +204,7 @@ const InvestmentForm = ({ onCalculate }) => {
                 name="entregaIntereses"
                 value={formData.entregaIntereses}
                 onChange={handleChange}
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full p-2 border bg-white rounded-2xl hover:border-blue-500 focus:ring-blue-400 focus:border-blue-400"
                 required
               >
                 <option value="">-- Selecciona una opción --</option>
@@ -218,7 +223,7 @@ const InvestmentForm = ({ onCalculate }) => {
                 name="periodoReinversion"
                 value={formData.periodoReinversion}
                 onChange={handleChange}
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full p-2 border rounded-2xl bg-white hover:border-blue-500 focus:ring-blue-400 focus:border-blue-400"
                 required
               >
                 <option value="">-- Selecciona una opción --</option>
@@ -238,7 +243,7 @@ const InvestmentForm = ({ onCalculate }) => {
                 name="aportacionPeriodica"
                 value={formData.aportacionPeriodica}
                 onChange={handleChange}
-                className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 block w-full p-2 border  rounded-2xl border-white hover:border-blue-500 focus:ring-blue-400 focus:border-blue-400"
                 required
               />
             </div>
@@ -255,7 +260,7 @@ const InvestmentForm = ({ onCalculate }) => {
               max="100"
               step="10"
               onChange={handleChange}
-              className="w-full h-2 bg-blue-300 rounded-lg appearance-auto cursor-pointer hover:bg-blue-400"
+              className="w-full h-2 bg-blue-500 rounded-lg hover:border-blue-600 appearance-auto cursor-pointer hover:bg-blue-600"
             />
             <div className="flex justify-between text-sm text-gray-700 mt-2">
               <span>0%</span>
@@ -265,29 +270,31 @@ const InvestmentForm = ({ onCalculate }) => {
               <span>80%</span>
               <span>100%</span>
             </div>
-            <div className="mt-2 text-gray-700 text-center">Valor: {percentage}%</div>
-          </div>
-
-          {/* Información adicional */}
-          <div className="text-center text-gray-600 text-sm">
-            <p>Tasa anual de interés del 24%</p>
-            <p>Fecha de cálculo: 10 de Junio de 2024</p>
+            <div className="mt-2 text-gray-700 text-center">
+              <input type="text" className="rounded-xl text-center w-16 py-1 px-0" readOnly value={`${percentage}%`}/>
+            </div>
           </div>
 
           {/* Botones */}
           <div className="flex justify-center space-x-4 mt-6">
             <button
               type="submit"
-              className="px-8 py-4 bg-blue-500 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 text-lg"
+              className="px-8 py-2 m-2 bg-[#0EA2CB] text-white rounded-full hover:bg-[#278eaa] focus:outline-none focus:ring-2 focus:ring-blue-600 text-lg"
             >
               Calcular Inversión
             </button>
             <button
               type="button"
-              className="px-8 py-4 bg-blue-900 text-white rounded-md hover:bg-blue-950 focus:outline-none focus:ring-2 focus:ring-blue-700 text-lg"
+              className="px-8 py-2 m-2  bg-[#1C2B54] text-white rounded-full hover:bg-blue-950 focus:outline-none focus:ring-2 focus:ring-blue-700 text-lg"
             >
               Enviar a un Ejecutivo
             </button>
+          </div>
+
+           {/* Información adicional */}
+           <div className="text-center text-gray-600 text-sm">
+            <p>Tasa anual de interés del 24%</p>
+            <p>Fecha de cálculo: {new Date().toLocaleDateString('es-mx', { weekday:"long", year:"numeric", month:"long", day:"numeric"})}</p>
           </div>
         </form>
       </div>

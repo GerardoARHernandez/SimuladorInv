@@ -27,16 +27,32 @@ const CapitalChart = ({ results }) => {
         grid: {
           display: false,
         },
+        title: {
+          display: true,
+          text: 'Periodo', // Texto del título
+          font: { // Estilos del título
+            weight: 'bold',
+          },
+        }
       },
       y: {
         grid: {
           display: false,
         },
-        ticks: { // Ajustar los ticks del eje Y para que no se superpongan
-          callback: function(value, index, values) {
-            return value.toLocaleString(); // Formatear los números del eje Y
+        title: {
+          display: true,
+          text: 'Capital Total (MXN)', // Texto del título
+          font: { // Estilos del título
+            weight: 'bold',
           },
-          stepSize: 20000, // Ajustar el espaciado entre los ticks (ejemplo)
+        },
+        ticks: {
+          beginAtZero: true, // Para que el eje Y comience en 0
+          autoSkip: true, // Para que los ticks se ajusten automáticamente
+          maxTicksLimit: 10, // Para limitar el número máximo de ticks (opcional)
+          callback: function (value) {
+            return value.toLocaleString();
+          },
         },
       },
     },
@@ -75,7 +91,7 @@ const CapitalChart = ({ results }) => {
 
       {/* Botón de Imprimir Reporte */}
       <div className="mt-4 flex justify-end">
-        <button className="px-4 py-2 bg-[#003BFF] text-white rounded-md hover:bg-[#0028b5] focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"> {/* Tamaño ajustado */}
+        <button className="px-4 py-2 bg-[#0EA2CB] text-white rounded-md hover:bg-[##54c3e2] focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"> {/* Tamaño ajustado */}
           Imprimir Reporte
         </button>
       </div>
