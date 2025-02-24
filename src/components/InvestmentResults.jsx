@@ -21,7 +21,7 @@ const InvestmentResults = ({ results }) => {
           </thead>
           <tbody>
             {results.map((result, index) => {
-              const rowClass = index % 2 === 0 ? 'bg-[#dbebf6]' : 'bg-[#bcd5e6]'; // Azul más oscuro para pares
+              const rowClass = index % 2 === 0 ? 'bg-[#dbebf6]' : 'bg-[#bcd5e6]';
               return (
                 <tr key={index} className={rowClass}>
                   <td className="px-3 py-3 text-sm text-center rounded-l-lg">{result.periodo}</td>
@@ -31,7 +31,7 @@ const InvestmentResults = ({ results }) => {
                   <td className="px-3 py-3 text-sm text-center">{result.capitalAdicional}</td>
                   <td className="px-3 py-3 text-sm text-center">{result.saldoAcumulado}</td>
                   <td className="px-3 py-3 text-sm text-center">{result.interesGenerado}</td>
-                  <td className="px-3 py-3 text-sm text-center">{result.interesGenerado * 12}</td>
+                  <td className="px-3 py-3 text-sm text-center">{(result.interesGenerado * 12).toFixed(2)}</td>
                   <td className="px-3 py-3 text-sm text-center">{result.interesRecapitalizado}</td>
                   <td className="px-3 py-3 text-sm text-center">{result.interesEntregado}</td>
                   <td className="px-3 py-3 text-sm text-center rounded-r-lg">{result.capitalTotal}</td>

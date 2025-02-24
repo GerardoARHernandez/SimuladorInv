@@ -69,56 +69,90 @@ const InvestmentForm = ({ onCalculate }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
+  
     const {
       capitalInicial,
       anosInvertir,
       entregaIntereses,
-      periodoReinversion,
       aportacionPeriodica,
       recapitalizacionAnual,
     } = formData;
-
+  
     const capitalInicialNum = parseFloat(capitalInicial);
     const anosInvertirNum = parseInt(anosInvertir);
     const aportacionPeriodicaNum = parseFloat(aportacionPeriodica);
-    const recapitalizacionAnualNum = parseInt(recapitalizacionAnual) / 100; // Convertir a decimal
-    const tasaAnual = 0.24;
-
+    const recapitalizacionAnualNum = parseFloat(recapitalizacionAnual) / 100; // Convertir a decimal
+    const tasaAnual = 0.24; // Tasa anual fija, puedes cambiarla o obtenerla de una API
+  
+    // Determinar el número de períodos por año según la frecuencia seleccionada
+    let periodosPorAno = 1; // Por defecto, anual
+    switch (entregaIntereses) {
+      case "mensual":
+        periodosPorAno = 12;
+        break;
+      case "trimestral":
+        periodosPorAno = 4;
+        break;
+      case "semestral":
+        periodosPorAno = 2;
+        break;
+    }
+  
+    // Calcular la tasa de interés por período
+    const tasaPorPeriodo = tasaAnual / periodosPorAno;
+  
+    // Variables para almacenar los resultados
+    let capitalTotal = capitalInicialNum;
+    let capitalInicialAcumulado = capitalInicialNum;
+    let totalInteresGenerado = 0;
+    let interesRecapitalizadoAcumulado = 0;
     const resultsCalculados = [];
-    let saldoAcumulado = capitalInicialNum;
-    let interesesGenerados = 0;
-    let interesesGeneradosAcumulados = 0;
-    let aportacionesTotales = capitalInicialNum;
-
-    for (let i = 0; i <= anosInvertirNum; i++) {
-      const capitalAdicional = i > 0 ? aportacionPeriodicaNum : 0;
-      saldoAcumulado += capitalAdicional;
-      aportacionesTotales += capitalAdicional;
-
-      const interesMensual = saldoAcumulado * (tasaAnual / 12);
-      interesesGenerados += interesMensual;
-      interesesGeneradosAcumulados += interesMensual;
-
-      const interesAnual = calcularInteresAnual(interesMensual, entregaIntereses, recapitalizacionAnualNum);
-      const interesEntregado = calcularEntregaIntereses(interesAnual, entregaIntereses);
-
+  
+    for (let i = 1; i <= anosInvertirNum * periodosPorAno; i++) {
+      const anoActual = Math.ceil(i / periodosPorAno);
+  
+      // Aportación periódica (se agrega en cada período, excepto en el primero)
+      const aportacion = i > 1 ? aportacionPeriodicaNum : 0;
+      capitalInicialAcumulado += aportacion;
+  
+      // Calcular el interés generado
+      let interesGenerado, interesRecapitalizado, interesEntregado;
+  
+      if (periodosPorAno === 1) {
+        capitalInicialAcumulado += interesRecapitalizadoAcumulado;
+        interesGenerado = capitalInicialAcumulado * tasaPorPeriodo;
+        interesRecapitalizado = interesGenerado * recapitalizacionAnualNum;
+        interesEntregado = interesGenerado - interesRecapitalizado;
+        interesRecapitalizadoAcumulado = 0;
+      } else {
+        if (anoActual > 1 && anoActual > (i - 1) / periodosPorAno) {
+          capitalInicialAcumulado += interesRecapitalizadoAcumulado;
+          interesRecapitalizadoAcumulado = 0;
+        }
+        interesGenerado = capitalInicialAcumulado * tasaPorPeriodo;
+        interesRecapitalizado = interesGenerado * recapitalizacionAnualNum;
+        interesEntregado = interesGenerado - interesRecapitalizado;
+      }
+  
+      interesRecapitalizadoAcumulado += interesRecapitalizado;
+      totalInteresGenerado += interesGenerado;
+      capitalTotal = capitalInicialAcumulado + totalInteresGenerado;
+  
+      // Guardar los resultados
       resultsCalculados.push({
-        periodo: `P${i + 1}`,
-        año: i,
-        edad: 28 + i,
-        capitalInicial: capitalInicialNum,
-        capitalAdicional: capitalAdicional,
-        saldoAcumulado: saldoAcumulado.toFixed(2),
-        interesGenerado: interesMensual.toFixed(2),
-        interesRecapitalizado: (interesAnual - interesEntregado).toFixed(2),
+        periodo: `P${i}`,
+        año: anoActual,
+        edad: 28 + anoActual - 1, // Ajusta la edad inicial según sea necesario
+        capitalInicial: capitalInicialNum.toFixed(2),
+        capitalAdicional: aportacion.toFixed(2), // Aportación periódica
+        saldoAcumulado: capitalInicialAcumulado.toFixed(2), // Saldo acumulado
+        interesGenerado: interesGenerado.toFixed(2),
+        interesRecapitalizado: interesRecapitalizado.toFixed(2),
         interesEntregado: interesEntregado.toFixed(2),
-        capitalTotal: saldoAcumulado.toFixed(2),
-        interesesGeneradosAcumulados: interesesGeneradosAcumulados.toFixed(2),
-        aportacionesTotales: aportacionesTotales.toFixed(2),
+        capitalTotal: capitalTotal.toFixed(2),
       });
     }
-
+  
     onCalculate(resultsCalculados);
   };
 
