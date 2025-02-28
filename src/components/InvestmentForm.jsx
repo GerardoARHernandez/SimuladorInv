@@ -16,60 +16,39 @@ const InvestmentForm = ({ onCalculate }) => {
     recapitalizacionAnual: "0%",
   });
 
-  const [showInfo, setShowInfo] = useState(false); // Estado para controlar la visibilidad del mensaje
+  const [showInfo, setShowInfo] = useState(false);
 
   const toggleInfo = () => {
-    setShowInfo(true); // Alternar la visibilidad del mensaje
-
+    setShowInfo(true);
     setTimeout(() => {
-     setShowInfo(false); // Alternar la visibilidad del mensaje
-      
+      setShowInfo(false);
     }, 5000);
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+
+    // Si el campo cambiado es "periodoReinversion" y el valor es "Ninguna", setear "aportacionPeriodica" a "0"
+    if (name === "periodoReinversion" && value === "Ninguna") {
+      setFormData({
+        ...formData,
+        [name]: value,
+        aportacionPeriodica: "0", // Establecer aportación periódica a 0
+      });
+    } else {
+      // En cualquier otro caso, actualizar el estado normalmente
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
   };
 
   const percentage = parseInt(formData.recapitalizacionAnual, 10);
 
-  const calcularInteresAnual = (interesMensual, periodo, recapitalizacion) => {
-    switch (periodo) {
-      case "Anual":
-        return interesMensual * 12 * (1 - recapitalizacion);
-      case "Semestral":
-        return interesMensual * 6 * (1 - recapitalizacion);
-      case "Mensual":
-        return interesMensual * (1 - recapitalizacion);
-      case "Trimestral":
-        return interesMensual * 3 * (1 - recapitalizacion);
-      default:
-        return 0;
-    }
-  };
-
-  const calcularEntregaIntereses = (interesAnual, periodo) => {
-    switch (periodo) {
-      case "Anual":
-        return interesAnual;
-      case "Semestral":
-        return interesAnual / 2;
-      case "Mensual":
-        return interesAnual / 12;
-      case "Trimestral":
-        return interesAnual / 4;
-      default:
-        return 0;
-    }
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
-  
+
     const {
       capitalInicial,
       anosInvertir,
@@ -77,15 +56,14 @@ const InvestmentForm = ({ onCalculate }) => {
       aportacionPeriodica,
       recapitalizacionAnual,
     } = formData;
-  
-    const capitalInicialNum = parseFloat(capitalInicial);
+
+    const capitalInicialNum = parseFloat(capitalInicial.replace(/,/g, ""));
     const anosInvertirNum = parseInt(anosInvertir);
-    const aportacionPeriodicaNum = parseFloat(aportacionPeriodica);
-    const recapitalizacionAnualNum = parseFloat(recapitalizacionAnual) / 100; // Convertir a decimal
-    const tasaAnual = 0.24; // Tasa anual fija, puedes cambiarla o obtenerla de una API
-  
-    // Determinar el número de períodos por año según la frecuencia seleccionada
-    let periodosPorAno = 1; // Por defecto, anual
+    const aportacionPeriodicaNum = parseFloat(aportacionPeriodica.replace(/,/g, ""));
+    const recapitalizacionAnualNum = parseFloat(recapitalizacionAnual) / 100;
+    const tasaMensual = 0.24 / 12;
+
+    let periodosPorAno = 1;
     switch (entregaIntereses) {
       case "mensual":
         periodosPorAno = 12;
@@ -97,27 +75,23 @@ const InvestmentForm = ({ onCalculate }) => {
         periodosPorAno = 2;
         break;
     }
-  
-    // Calcular la tasa de interés por período
-    const tasaPorPeriodo = tasaAnual / periodosPorAno;
-  
-    // Variables para almacenar los resultados
+
+    const tasaPorPeriodo = tasaMensual;
+
     let capitalTotal = capitalInicialNum;
     let capitalInicialAcumulado = capitalInicialNum;
     let totalInteresGenerado = 0;
     let interesRecapitalizadoAcumulado = 0;
     const resultsCalculados = [];
-  
+
     for (let i = 1; i <= anosInvertirNum * periodosPorAno; i++) {
       const anoActual = Math.ceil(i / periodosPorAno);
-  
-      // Aportación periódica (se agrega en cada período, excepto en el primero)
+
       const aportacion = i > 1 ? aportacionPeriodicaNum : 0;
       capitalInicialAcumulado += aportacion;
-  
-      // Calcular el interés generado
+
       let interesGenerado, interesRecapitalizado, interesEntregado;
-  
+
       if (periodosPorAno === 1) {
         capitalInicialAcumulado += interesRecapitalizadoAcumulado;
         interesGenerado = capitalInicialAcumulado * tasaPorPeriodo;
@@ -133,243 +107,239 @@ const InvestmentForm = ({ onCalculate }) => {
         interesRecapitalizado = interesGenerado * recapitalizacionAnualNum;
         interesEntregado = interesGenerado - interesRecapitalizado;
       }
-  
+
       interesRecapitalizadoAcumulado += interesRecapitalizado;
       totalInteresGenerado += interesGenerado;
       capitalTotal = capitalInicialAcumulado + totalInteresGenerado;
-  
-      // Guardar los resultados
+
       resultsCalculados.push({
         periodo: `P${i}`,
         año: anoActual,
-        edad: 28 + anoActual - 1, // Ajusta la edad inicial según sea necesario
+        edad: 28 + anoActual - 1,
         capitalInicial: capitalInicialNum.toFixed(2),
-        capitalAdicional: aportacion.toFixed(2), // Aportación periódica
-        saldoAcumulado: capitalInicialAcumulado.toFixed(2), // Saldo acumulado
+        capitalAdicional: aportacion.toFixed(2),
+        saldoAcumulado: capitalInicialAcumulado.toFixed(2),
         interesGenerado: interesGenerado.toFixed(2),
         interesRecapitalizado: interesRecapitalizado.toFixed(2),
         interesEntregado: interesEntregado.toFixed(2),
         capitalTotal: capitalTotal.toFixed(2),
       });
     }
-  
+
     onCalculate(resultsCalculados);
   };
 
   return (
     <>
-    <div className="p-8 bg-gray-200 rounded-xl shadow-xl max-w-5xl mx-0 text-gray-800 font-sans grid grid-cols-1 md:grid-cols-3 gap-4 ">
-      {/* Formulario */}
-      <div className="col-span-2"> {/* Toma 2/3 del ancho */}
-        <h1 className="text-2xl font-bold text-[#1C2B54] mb-6 uppercase text-center">
-          Simulador de inversión
-        </h1>
-        <form onSubmit={handleSubmit} className="space-y-4 shadow-sm">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Nombre */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Nombre:</label>
-              <input
-                type="text"
-                name="nombre"
-                value={formData.nombre}
-                onChange={handleChange}
-                className="mt-1 hover:border-blue-500 block w-full p-2 border rounded-2xl bg-white focus:ring-blue-400 focus:border-blue-400"
-                required
-              />
-            </div>
-
-            {/* Correo Electrónico */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Correo Electrónico:</label>
-              <input
-                type="email"
-                name="correoElectronico"
-                value={formData.correoElectronico}
-                onChange={handleChange}
-                className="mt-1 block w-full p-2 border bg-white rounded-2xl hover:border-blue-500 focus:ring-blue-500 focus:border-blue-500"
-                required
-              />
-            </div>
-
-            {/* Fecha de Nacimiento */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Fecha de Nacimiento:</label>
-              <div className="relative">
+      <div className="p-8 bg-gray-200 rounded-xl shadow-xl max-w-5xl mx-0 text-gray-800 font-sans grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Formulario */}
+        <div className="col-span-2">
+          <h1 className="text-2xl font-bold text-[#1C2B54] mb-6 uppercase text-center">
+            Simulador de inversión
+          </h1>
+          <form onSubmit={handleSubmit} className="space-y-4 shadow-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Nombre */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Nombre:</label>
                 <input
-                  type="date"
-                  name="fechaNacimiento"
-                  value={formData.fechaNacimiento}
+                  type="text"
+                  name="nombre"
+                  value={formData.nombre}
                   onChange={handleChange}
-                  className="mt-1 block w-full p-2 border bg-white rounded-2xl focus:ring-blue-400 focus:border-blue-400 pr-10 appearance-none hover:border-blue-500"
+                  className="mt-1 hover:border-blue-500 block w-full p-2 border rounded-2xl bg-white focus:ring-blue-400 focus:border-blue-400"
                   required
-                  style={{
-                    // Oculta el icono predeterminado en Chrome, Edge, etc.
-                    WebkitAppearance: "none",
-                    MozAppearance: "textfield", // Para Firefox
-                  }}
                 />
-                {/* <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <FontAwesomeIcon icon={faCalendarDays} className="text-blue-500" />
-                </div> */}
+              </div>
+
+              {/* Correo Electrónico */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Correo Electrónico:</label>
+                <input
+                  type="email"
+                  name="correoElectronico"
+                  value={formData.correoElectronico}
+                  onChange={handleChange}
+                  className="mt-1 block w-full p-2 border bg-white rounded-2xl hover:border-blue-500 focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
+              </div>
+
+              {/* Fecha de Nacimiento */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Fecha de Nacimiento:</label>
+                <div className="relative">
+                  <input
+                    type="date"
+                    name="fechaNacimiento"
+                    value={formData.fechaNacimiento}
+                    onChange={handleChange}
+                    className="mt-1 block w-full p-2 border bg-white rounded-2xl focus:ring-blue-400 focus:border-blue-400 pr-10 appearance-none hover:border-blue-500"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Capital Inicial */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Capital Inicial (MXN):</label>
+                <input
+                  type="text"
+                  name="capitalInicial"
+                  value={formData.capitalInicial.toLocaleString()}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/,/g, "");
+                    handleChange({ target: { name: e.target.name, value } });
+                  }}
+                  className="mt-1 block w-full p-2 border bg-white rounded-2xl hover:border-blue-500 focus:ring-blue-500 focus:border-blue-500"
+                  required
+                />
+              </div>
+
+              {/* Años a Invertir */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Años a Invertir:</label>
+                <input
+                  type="number"
+                  min={1}
+                  name="anosInvertir"
+                  value={formData.anosInvertir}
+                  onChange={handleChange}
+                  className="mt-1 block w-full p-2 border bg-white rounded-2xl hover:border-blue-600 focus:ring-blue-400 focus:border-blue-400"
+                  required
+                />
+              </div>
+
+              {/* Entrega de Intereses */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Entrega de Intereses:</label>
+                <select
+                  name="entregaIntereses"
+                  value={formData.entregaIntereses}
+                  onChange={handleChange}
+                  className="mt-1 block w-full p-2 border bg-white rounded-2xl hover:border-blue-500 focus:ring-blue-400 focus:border-blue-400"
+                  required
+                >
+                  <option value="">-- Selecciona una opción --</option>
+                  <option value="mensual">Mensual</option>
+                  <option value="trimestral">Trimestral</option>
+                  <option value="semestral">Semestral</option>
+                  <option value="anual">Anual</option>
+                </select>
+              </div>
+
+              {/* Periodo de Reinversión */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Periodo de Reinversión:</label>
+                <select
+                  name="periodoReinversion"
+                  value={formData.periodoReinversion}
+                  onChange={handleChange}
+                  className="mt-1 block w-full p-2 border rounded-2xl bg-white hover:border-blue-500 focus:ring-blue-400 focus:border-blue-400"
+                  required
+                >
+                  <option value="">-- Selecciona una opción --</option>
+                  <option value="Ninguna">Ninguna</option>
+                  <option value="mensual">Mensual</option>
+                  <option value="trimestral">Trimestral</option>
+                  <option value="semestral">Semestral</option>
+                  <option value="anual">Anual</option>
+                </select>
+              </div>
+
+              {/* Aportación Periódica */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Aportación Periódica (MXN):</label>
+                <input
+                  type="text"
+                  name="aportacionPeriodica"
+                  value={formData.aportacionPeriodica.toLocaleString()}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/,/g, "");
+                    handleChange({ target: { name: e.target.name, value } });
+                  }}
+                  className="mt-1 block w-full p-2 border rounded-2xl border-white hover:border-blue-500 focus:ring-blue-400 focus:border-blue-400"
+                  disabled={formData.periodoReinversion === "Ninguna"} // Solo deshabilitar si es "Ninguna"
+                  required={formData.periodoReinversion !== "Ninguna"} // Solo requerido si no es "Ninguna"
+                />
               </div>
             </div>
 
-            {/* Capital Inicial */}
+            {/* Recapitalización Anual */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Capital Inicial (MXN):</label>
+              <label className="block text-sm font-medium">Recapitalización anual (%):</label>
               <input
-                type="number"
-                min={0}
-                name="capitalInicial"
-                value={formData.capitalInicial}
+                type="range"
+                name="recapitalizacionAnual"
+                value={formData.recapitalizacionAnual}
+                min="0"
+                max="100"
+                step="10"
                 onChange={handleChange}
-                className="mt-1 block w-full p-2 border bg-white rounded-2xl hover:border-blue-500 focus:ring-blue-500 focus:border-blue-500"
-                required
+                className="w-full h-2 bg-blue-500 rounded-lg hover:border-blue-600 appearance-auto cursor-pointer hover:bg-blue-600"
               />
+              <div className="flex justify-between text-sm text-gray-700 mt-2">
+                <span>0%</span>
+                <span>20%</span>
+                <span>40%</span>
+                <span>60%</span>
+                <span>80%</span>
+                <span>100%</span>
+              </div>
+              <div className="mt-2 text-gray-700 text-center">
+                <input type="text" className="rounded-xl text-center w-16 py-1 px-0" readOnly value={`${percentage}%`} />
+              </div>
             </div>
 
-            {/* Años a Invertir */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Años a Invertir:</label>
-              <input
-                type="number"
-                min={1}
-                name="anosInvertir"
-                value={formData.anosInvertir}
-                onChange={handleChange}
-                className="mt-1 block w-full p-2 border bg-white rounded-2xl hover:border-blue-600 focus:ring-blue-400 focus:border-blue-400"
-                required
-              />
-            </div>
-
-            {/* Entrega de Intereses */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Entrega de Intereses:</label>
-              <select
-                name="entregaIntereses"
-                value={formData.entregaIntereses}
-                onChange={handleChange}
-                className="mt-1 block w-full p-2 border bg-white rounded-2xl hover:border-blue-500 focus:ring-blue-400 focus:border-blue-400"
-                required
+            {/* Botones */}
+            <div className="flex justify-center space-x-4 mt-6">
+              <button
+                type="submit"
+                className="px-8 py-2 m-2 bg-[#0EA2CB] text-white rounded-full hover:bg-[#278eaa] focus:outline-none focus:ring-2 focus:ring-blue-600 text-lg"
               >
-                <option value="">-- Selecciona una opción --</option>
-                <option value="mensual">Mensual</option>
-                <option value="trimestral">Trimestral</option>
-                <option value="semestral">Semestral</option>
-                <option value="anual">Anual</option>
-                
-              </select>
-            </div>
-
-            {/* Periodo de Reinversión */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Periodo de Reinversión:</label>
-              <select
-                name="periodoReinversion"
-                value={formData.periodoReinversion}
-                onChange={handleChange}
-                className="mt-1 block w-full p-2 border rounded-2xl bg-white hover:border-blue-500 focus:ring-blue-400 focus:border-blue-400"
-                required
+                Calcular Inversión
+              </button>
+              <button
+                type="button"
+                className="px-8 py-2 m-2 bg-[#1C2B54] text-white rounded-full hover:bg-blue-950 focus:outline-none focus:ring-2 focus:ring-blue-700 text-lg"
               >
-                <option value="">-- Selecciona una opción --</option>
-                <option value="mensual">Mensual</option>
-                <option value="trimestral">Trimestral</option>
-                <option value="semestral">Semestral</option>
-                <option value="anual">Anual</option>
-              </select>
+                Enviar a un Ejecutivo
+              </button>
             </div>
 
-            {/* Aportación Periódica */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Aportación Periódica (MXN):</label>
-              <input
-                type="number"
-                min={0}
-                name="aportacionPeriodica"
-                value={formData.aportacionPeriodica}
-                onChange={handleChange}
-                className="mt-1 block w-full p-2 border  rounded-2xl border-white hover:border-blue-500 focus:ring-blue-400 focus:border-blue-400"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Recapitalización Anual */}
-          <div>
-            <label className="block text-sm font-medium">Recapitalización anual (%):</label>
-            <input
-              type="range"
-              name="recapitalizacionAnual"
-              value={formData.recapitalizacionAnual}
-              min="0"
-              max="100"
-              step="10"
-              onChange={handleChange}
-              className="w-full h-2 bg-blue-500 rounded-lg hover:border-blue-600 appearance-auto cursor-pointer hover:bg-blue-600"
-            />
-            <div className="flex justify-between text-sm text-gray-700 mt-2">
-              <span>0%</span>
-              <span>20%</span>
-              <span>40%</span>
-              <span>60%</span>
-              <span>80%</span>
-              <span>100%</span>
-            </div>
-            <div className="mt-2 text-gray-700 text-center">
-              <input type="text" className="rounded-xl text-center w-16 py-1 px-0" readOnly value={`${percentage}%`}/>
-            </div>
-          </div>
-
-          {/* Botones */}
-          <div className="flex justify-center space-x-4 mt-6">
-            <button
-              type="submit"
-              className="px-8 py-2 m-2 bg-[#0EA2CB] text-white rounded-full hover:bg-[#278eaa] focus:outline-none focus:ring-2 focus:ring-blue-600 text-lg"
-            >
-              Calcular Inversión
-            </button>
             <button
               type="button"
-              className="px-8 py-2 m-2  bg-[#1C2B54] text-white rounded-full hover:bg-blue-950 focus:outline-none focus:ring-2 focus:ring-blue-700 text-lg"
+              onClick={toggleInfo}
+              className="px-3 py-2 m-2 text-[#0EA2CB] hover:text-[#1C2B54] focus:outline-none"
             >
-              Enviar a un Ejecutivo
+              <FontAwesomeIcon icon={faInfoCircle} className="w-6 h-6" />
             </button>
-          </div>
 
-          <button
-            type="button"
-            onClick={toggleInfo}
-            className="px-3 py-2 m-2 text-[#0EA2CB] hover:text-[#1C2B54] focus:outline-none"
-          >
-            <FontAwesomeIcon icon={faInfoCircle} className="w-6 h-6" />
-          </button>
+            {showInfo && (
+              <div className="z-10 absolute top-16 right-0 bg-white p-4 rounded-lg shadow-lg border border-gray-200 w-64">
+                <p className="text-sm text-gray-700">
+                  Envíe su formulario y un ejecutivo se comunicará con usted.
+                </p>
+              </div>
+            )}
 
-          {showInfo && (
-            <div className="z-10 absolute top-16 right-0 bg-white p-4 rounded-lg shadow-lg border border-gray-200 w-64">
-              <p className="text-sm text-gray-700">
-                Envíe su formulario y un ejecutivo se comunicará con usted.
-              </p>
+            {/* Información adicional */}
+            <div className="text-center text-gray-600 text-sm">
+              <p>Tasa anual de interés del 24%</p>
+              <p>Fecha de cálculo: {new Date().toLocaleDateString("es-mx", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</p>
             </div>
-          )}
+          </form>
+        </div>
 
-           {/* Información adicional */}
-           <div className="text-center text-gray-600 text-sm">
-            <p>Tasa anual de interés del 24%</p>
-            <p>Fecha de cálculo: {new Date().toLocaleDateString('es-mx', { weekday:"long", year:"numeric", month:"long", day:"numeric"})}</p>
-          </div>
-        </form>
+        {/* Imagen */}
+        <div className="col-span-1 overflow-hidden relative">
+          <img
+            src="public/invers.jpg"
+            alt="Simulador"
+            className="object-cover w-lvw h-full rounded-lg shadow-md"
+          />
+        </div>
       </div>
-
-      {/* Imagen */}
-      <div className="col-span-1 overflow-hidden relative">
-        <img
-          src="public/invers.jpg"
-          alt="Simulador"
-          className="object-cover w-lvw h-full rounded-lg shadow-md"
-        />
-      </div>
-    </div>    
     </>
   );
 };
