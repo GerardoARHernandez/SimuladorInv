@@ -131,7 +131,7 @@ const InvestmentForm = ({ onCalculate }) => {
 
   return (
     <>
-      <div className="p-8 bg-gray-200 rounded-xl shadow-xl max-w-5xl mx-0 text-gray-800 font-sans grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="p-8 bg-gray-100 rounded-xl shadow-xl max-w-5xl mx-0 text-gray-800 font-sans grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Formulario */}
         <div className="col-span-2">
           <h1 className="text-2xl font-bold text-[#1C2B54] mb-6 uppercase text-center">
@@ -334,7 +334,7 @@ const InvestmentForm = ({ onCalculate }) => {
         {/* Imagen */}
         <div className="col-span-1 overflow-hidden relative">
           <img
-            src="public/invers.jpg"
+            src="/invers.png"
             alt="Simulador"
             className="object-cover w-lvw h-full rounded-lg shadow-md"
           />

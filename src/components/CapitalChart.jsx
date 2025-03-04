@@ -71,7 +71,7 @@ const CapitalChart = ({ results }) => {
   };
 
   return (
-    <div className="mt-8 bg-white p-4 rounded-lg shadow-md w-3/4 mx-auto"> {/* Ancho ajustado y centrado */}
+    <div className="mt-8 bg-gray-100 p-4 rounded-lg shadow-md w-3/4 mx-auto"> {/* Ancho ajustado y centrado */}
       <h2 className="text-xl font-bold text-gray-900 mb-2 text-center">Capital Real (MXN)</h2> {/* Centrado */}
 
       {/* Botones de Moneda */}
