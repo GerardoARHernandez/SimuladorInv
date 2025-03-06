@@ -129,6 +129,11 @@ const InvestmentForm = ({ onCalculate }) => {
     onCalculate(resultsCalculados);
   };
 
+  const handleContainerClick = () => {
+    // Enfocar el input de fecha cuando se hace clic en el contenedor
+    document.getElementById('fechaNacimiento').focus();
+  };
+
   return (
     <>
       <div className="p-8 bg-gray-100 rounded-xl shadow-xl max-w-5xl mx-0 text-gray-800 font-sans grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -167,9 +172,11 @@ const InvestmentForm = ({ onCalculate }) => {
 
               {/* Fecha de Nacimiento */}
               <div>
-                <label className="block text-sm font-medium text-gray-700">Fecha de Nacimiento:</label>
-                <div className="relative">
+                <label htmlFor="fechaNacimiento" className="block text-sm font-medium text-gray-700">
+                  Fecha de Nacimiento:</label>
+                <div className="relative cursor-pointer" onClick={handleContainerClick}>
                   <input
+                    id="fechaNacimiento"
                     type="date"
                     name="fechaNacimiento"
                     value={formData.fechaNacimiento}
@@ -276,7 +283,7 @@ const InvestmentForm = ({ onCalculate }) => {
                 max="100"
                 step="10"
                 onChange={handleChange}
-                className="w-full h-2 bg-blue-500 rounded-lg hover:border-blue-600 appearance-auto cursor-pointer hover:bg-blue-600"
+                className="w-full h-2 bg-[#1B2A53] rounded-lg hover:border-blue-600 appearance-auto cursor-pointer hover:bg-[#121c38]"
               />
               <div className="flex justify-between text-sm text-gray-700 mt-2">
                 <span>0%</span>

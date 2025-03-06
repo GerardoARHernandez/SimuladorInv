@@ -16,8 +16,10 @@ const Navbar = () => {
               {/* Logo */}
               <div className="flex">
                 <a href="#" className="flex items-center py-4">
-                  <span className="font-semibold text-[#0EA2CB] text-lg">
-                    FACTIBLEco. SIMULADOR DE INVERSIÓN
+                  <span>
+                    <img src="/logo.png" alt="FACTIBLEco. imagen" 
+                      className="w-auto h-12"
+                    />
                   </span>
                 </a>
               </div>
