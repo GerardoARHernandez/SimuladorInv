@@ -1,7 +1,8 @@
+import { useState } from "react";
+import ExecutiveModal from "./ExecutiveModal";
 import { faCalendarDays } from "@fortawesome/free-regular-svg-icons";
 import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
 
 const InvestmentForm = ({ onCalculate }) => {
   const [formData, setFormData] = useState({
@@ -18,7 +19,33 @@ const InvestmentForm = ({ onCalculate }) => {
     tasaInteresAnual: "24",
   });
 
+  const validateRequiredFields = () => {
+    return (
+      formData.nombre &&
+      formData.correoElectronico &&
+      formData.fechaNacimiento &&
+      formData.capitalInicial &&
+      formData.anosInvertir &&
+      formData.entregaIntereses &&
+      formData.periodoReinversion &&
+      (formData.periodoReinversion === "Ninguna" || formData.aportacionPeriodica)
+    );
+  };
+
   const [showInfo, setShowInfo] = useState(false);
+  const [showExecutiveModal, setShowExecutiveModal] = useState(false);
+
+  // Función para manejar el envío al ejecutivo
+  const handleSendToExecutive = (executiveData) => {
+    // Aquí puedes implementar el envío real (API, email, etc.)
+    console.log('Datos enviados al ejecutivo:', {
+      ...formData,
+      ...executiveData
+    });
+    
+    // Mostrar confirmación al usuario
+    alert('Su información ha sido enviada al ejecutivo. Nos pondremos en contacto pronto.');
+  };
 
   const toggleInfo = () => {
     setShowInfo(true);
@@ -383,7 +410,13 @@ const InvestmentForm = ({ onCalculate }) => {
               </button>
               <button
                 type="button"
-                className="px-8 py-2 m-2 bg-[#1C2B54] text-white rounded-full hover:bg-blue-950 focus:outline-none focus:ring-2 focus:ring-blue-700 text-lg"
+                className={`px-8 py-2 m-2 rounded-full focus:outline-none focus:ring-2 text-lg ${
+                  validateRequiredFields() 
+                    ? 'bg-[#1C2B54] text-white hover:bg-blue-950 focus:ring-blue-700'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+                onClick={() => setShowExecutiveModal(true)}
+                disabled={!validateRequiredFields()}
               >
                 Enviar a un Ejecutivo
               </button>
@@ -422,6 +455,14 @@ const InvestmentForm = ({ onCalculate }) => {
           />
         </div>
       </div>
+
+      {showExecutiveModal && (
+        <ExecutiveModal
+          formData={formData}
+          onClose={() => setShowExecutiveModal(false)}
+          onSend={handleSendToExecutive}
+        />
+      )}
     </>
   );
 };
