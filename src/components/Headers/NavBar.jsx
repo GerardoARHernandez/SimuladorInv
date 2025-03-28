@@ -10,8 +10,8 @@ const Navbar = () => {
   return (
     <>
       <div className="shadow-xl">
-        <nav className="bg-gray-200">
-          <div className="max-w-6xl mx-auto px-4">
+        <nav className="bg-gray-50">
+          <div className="max-w-6xl mx-auto px-20">
             <div className="flex justify-between items-center">
               {/* Logo */}
               <div className="flex">
@@ -48,30 +48,18 @@ const Navbar = () => {
               </div>
 
               {/* Menú de navegación (oculto en móviles, visible en desktop) */}
-              <div className="hidden md:flex items-center space-x-4">
+              <div className="hidden md:flex items-center space-x-4 md:text-xl">
                 <a
-                  href="#"
+                  href="https://factibleco.com/"
                   className="py-4 px-2 text-gray-600 font-semibold hover:text-[#0EA2CB] transition duration-300"
                 >
                   Inicio
                 </a>
                 <a
-                  href="#"
-                  className="py-4 px-2 text-gray-600 font-semibold hover:text-[#0EA2CB] transition duration-300"
-                >
-                  Ahorro
-                </a>
-                <a
-                  href="#"
+                  href="/"
                   className="py-4 px-2 text-gray-600 font-semibold hover:text-[#0EA2CB] transition duration-300"
                 >
                   Inversión
-                </a>
-                <a
-                  href="#"
-                  className="py-4 px-2 text-gray-600 font-semibold hover:text-[#0EA2CB] transition duration-300"
-                >
-                  Crédito
                 </a>
               </div>
             </div>

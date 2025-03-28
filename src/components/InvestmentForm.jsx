@@ -13,7 +13,8 @@ const InvestmentForm = ({ onCalculate }) => {
     entregaIntereses: "",
     periodoReinversion: "",
     aportacionPeriodica: "",
-    recapitalizacionAnual: "0%",
+    deseaRecapitalizar: "NO", // Nuevo campo con valor por defecto "NO"
+    recapitalizacionAnual: "100%", // Cambiado a 100% por defecto cuando es SI
     tasaInteresAnual: "24",
   });
 
@@ -34,10 +35,19 @@ const InvestmentForm = ({ onCalculate }) => {
       setFormData({
         ...formData,
         [name]: value,
-        aportacionPeriodica: "0", // Establecer aportación periódica a 0
+        aportacionPeriodica: "0",
       });
-    } else {
-      // En cualquier otro caso, actualizar el estado normalmente
+    } 
+    // Si el campo cambiado es "deseaRecapitalizar"
+    else if (name === "deseaRecapitalizar") {
+      setFormData({
+        ...formData,
+        [name]: value,
+        recapitalizacionAnual: value === "SI" ? "100%" : "0%"
+      });
+    }
+    // En cualquier otro caso, actualizar el estado normalmente
+    else {
       setFormData({
         ...formData,
         [name]: value,
@@ -65,12 +75,14 @@ const InvestmentForm = ({ onCalculate }) => {
       entregaIntereses,
       aportacionPeriodica,
       recapitalizacionAnual,
+      deseaRecapitalizar,
     } = formData;
 
     const capitalInicialNum = parseFloat(capitalInicial.replace(/,/g, ""));
     const anosInvertirNum = parseInt(anosInvertir);
     const aportacionPeriodicaNum = parseFloat(aportacionPeriodica.replace(/,/g, ""));
-    const recapitalizacionAnualNum = parseFloat(recapitalizacionAnual) / 100;
+    // Si no desea recapitalizar, forzar 0%
+    const recapitalizacionAnualNum = deseaRecapitalizar === "SI" ? parseFloat(recapitalizacionAnual) / 100 : 0;
     const tasaMensual = (parseFloat(formData.tasaInteresAnual) / 100) / 12;
 
     let periodosPorAno = 1;
@@ -161,7 +173,7 @@ const InvestmentForm = ({ onCalculate }) => {
 
   return (
     <>
-      <div className="p-8 bg-gray-100 rounded-xl shadow-xl max-w-5xl mx-0 text-gray-800 font-sans grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="p-8 bg-gray-50 rounded-xl shadow-xl max-w-5xl mx-0 text-gray-800 font-sans grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Formulario */}
         <div className="col-span-2">
           <h1 className="text-2xl font-bold text-[#1C2B54] mb-6 uppercase text-center">
@@ -291,37 +303,75 @@ const InvestmentForm = ({ onCalculate }) => {
                     handleChange({ target: { name: e.target.name, value } });
                   }}
                   className="mt-1 block w-full p-2 border rounded-2xl border-white hover:border-blue-500 focus:ring-blue-400 focus:border-blue-400"
-                  disabled={formData.periodoReinversion === "Ninguna"} // Solo deshabilitar si es "Ninguna"
-                  required={formData.periodoReinversion !== "Ninguna"} // Solo requerido si no es "Ninguna"
+                  disabled={formData.periodoReinversion === "Ninguna"}
+                  required={formData.periodoReinversion !== "Ninguna"}
                 />
               </div>
             </div>
 
-            {/* Recapitalización Anual */}
+            {/* Pregunta sobre recapitalización */}
             <div>
-              <label className="block text-sm font-medium">Recapitalización anual (%):</label>
-              <input
-                type="range"
-                name="recapitalizacionAnual"
-                value={formData.recapitalizacionAnual}
-                min="0"
-                max="100"
-                step="10"
-                onChange={handleChange}
-                className="w-full h-2 bg-[#1B2A53] rounded-lg hover:border-blue-600 appearance-auto cursor-pointer hover:bg-[#121c38]"
-              />
-              <div className="flex justify-between text-sm text-gray-700 mt-2">
-                <span>0%</span>
-                <span>20%</span>
-                <span>40%</span>
-                <span>60%</span>
-                <span>80%</span>
-                <span>100%</span>
-              </div>
-              <div className="mt-2 text-gray-700 text-center">
-                <input type="text" className="rounded-xl text-center w-16 py-1 px-0" readOnly value={`${percentage}%`} />
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                ¿Desea recapitalizar su inversión anualmente?
+              </label>
+              <div className="flex space-x-4">
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="deseaRecapitalizar"
+                    value="SI"
+                    checked={formData.deseaRecapitalizar === "SI"}
+                    onChange={handleChange}
+                    className="text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="ml-2">Sí</span>
+                </label>
+                <label className="inline-flex items-center">
+                  <input
+                    type="radio"
+                    name="deseaRecapitalizar"
+                    value="NO"
+                    checked={formData.deseaRecapitalizar === "NO"}
+                    onChange={handleChange}
+                    className="text-blue-600 focus:ring-blue-500"
+                  />
+                  <span className="ml-2">No</span>
+                </label>
               </div>
             </div>
+
+            {/* Control de recapitalización (solo visible si eligió SI) */}
+            {formData.deseaRecapitalizar === "SI" && (
+              <div>
+                <label className="block text-sm font-medium">Recapitalización anual (%):</label>
+                <input
+                  type="range"
+                  name="recapitalizacionAnual"
+                  value={formData.recapitalizacionAnual.replace('%', '')}
+                  min="0"
+                  max="100"
+                  step="10"
+                  onChange={handleChange}
+                  className="w-full h-2 bg-[#1B2A53] rounded-lg hover:border-blue-600 appearance-auto cursor-pointer hover:bg-[#121c38]"
+                />
+                <div className="flex justify-between text-sm text-gray-700 mt-2">
+                  <span>0%</span>
+                  <span>20%</span>
+                  <span>40%</span>
+                  <span>60%</span>
+                  <span>80%</span>
+                  <span>100%</span>
+                </div>
+                <div className="mt-2 text-gray-700 text-center">
+                  <input 
+                    type="text" 
+                    className="rounded-xl text-center w-16 py-1 px-0" 
+                    readOnly 
+                    value={`${percentage}%`} 
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Botones */}
             <div className="flex justify-center space-x-4 mt-6">

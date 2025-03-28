@@ -22,8 +22,8 @@ function App() {
         <div className="max-w-5xl mx-auto p-2 rounded-3x ">
           <InvestmentForm onCalculate={handleCalculate} />
         </div>
-        <Resultado />
         {results && <div className='max-w-5xl mx-auto bg-white p-8 rounded-lg shadow-lg'> 
+        <Resultado />
           {results && <InvestmentResults results={results} />}
           {results && formData && <CapitalChart results={results} formData={formData} />}
         </div>}
