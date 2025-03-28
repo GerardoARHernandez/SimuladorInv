@@ -5,11 +5,14 @@ import CapitalChart from './components/CapitalChart';
 import Resultado from './components/Headers/Resultado';
 import Navbar from './components/Headers/NavBar';
 
+// App.js
 function App() {
-  const [results, setResults] = useState(null); // Inicializar como null
+  const [results, setResults] = useState(null);
+  const [formData, setFormData] = useState(null);
 
-  const handleCalculate = (resultsCalculados) => {
+  const handleCalculate = (resultsCalculados, formData) => {
     setResults(resultsCalculados);
+    setFormData(formData);
   };
 
   return (
@@ -17,12 +20,12 @@ function App() {
       <Navbar />
       <div className="min-h-screen p-6">      
         <div className="max-w-5xl mx-auto p-2 rounded-3x ">
-          <InvestmentForm onCalculate={handleCalculate} setResults={setResults} /> {/* Pasar setResults */}
+          <InvestmentForm onCalculate={handleCalculate} />
         </div>
         <Resultado />
         {results && <div className='max-w-5xl mx-auto bg-white p-8 rounded-lg shadow-lg'> 
-          {results && <InvestmentResults results={results} />} {/* Renderizar condicionalmente */}
-          {results && <CapitalChart results={results} />}
+          {results && <InvestmentResults results={results} />}
+          {results && formData && <CapitalChart results={results} formData={formData} />}
         </div>}
       </div>
     </>

@@ -14,6 +14,7 @@ const InvestmentForm = ({ onCalculate }) => {
     periodoReinversion: "",
     aportacionPeriodica: "",
     recapitalizacionAnual: "0%",
+    tasaInteresAnual: "24",
   });
 
   const [showInfo, setShowInfo] = useState(false);
@@ -49,6 +50,15 @@ const InvestmentForm = ({ onCalculate }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Calcular edad actual basada en fecha de nacimiento
+    const birthDate = new Date(formData.fechaNacimiento);
+    const today = new Date();
+    let edadActual = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      edadActual--;
+    }
+
     const {
       capitalInicial,
       anosInvertir,
@@ -61,7 +71,7 @@ const InvestmentForm = ({ onCalculate }) => {
     const anosInvertirNum = parseInt(anosInvertir);
     const aportacionPeriodicaNum = parseFloat(aportacionPeriodica.replace(/,/g, ""));
     const recapitalizacionAnualNum = parseFloat(recapitalizacionAnual) / 100;
-    const tasaMensual = 0.24 / 12;
+    const tasaMensual = (parseFloat(formData.tasaInteresAnual) / 100) / 12;
 
     let periodosPorAno = 1;
     switch (entregaIntereses) {
@@ -76,7 +86,22 @@ const InvestmentForm = ({ onCalculate }) => {
         break;
     }
 
-    const tasaPorPeriodo = tasaMensual;
+    let tasaPorPeriodo;
+    switch (entregaIntereses) {
+    case "mensual":
+      tasaPorPeriodo = tasaMensual;
+      break;
+    case "trimestral":
+      tasaPorPeriodo = tasaMensual * 3;
+      break;
+    case "semestral":
+      tasaPorPeriodo = tasaMensual * 6;
+      break;
+    case "anual":
+      tasaPorPeriodo = tasaMensual * 12;
+      break;
+    }
+    
 
     let capitalTotal = capitalInicialNum;
     let capitalInicialAcumulado = capitalInicialNum;
@@ -115,7 +140,7 @@ const InvestmentForm = ({ onCalculate }) => {
       resultsCalculados.push({
         periodo: `P${i}`,
         año: anoActual,
-        edad: 28 + anoActual - 1,
+        edad: edadActual + anoActual - 1, // Edad actual + años transcurridos
         capitalInicial: capitalInicialNum.toFixed(2),
         capitalAdicional: aportacion.toFixed(2),
         saldoAcumulado: capitalInicialAcumulado.toFixed(2),
@@ -126,7 +151,7 @@ const InvestmentForm = ({ onCalculate }) => {
       });
     }
 
-    onCalculate(resultsCalculados);
+    onCalculate(resultsCalculados, formData); // Enviar ambos: resultados y datos del formulario
   };
 
   const handleContainerClick = () => {

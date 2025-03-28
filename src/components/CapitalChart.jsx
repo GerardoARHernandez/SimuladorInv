@@ -1,9 +1,144 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Chart as ChartJS } from 'chart.js/auto';
 import { Bar } from 'react-chartjs-2';
 
-const CapitalChart = ({ results }) => {
-  const [currency, setCurrency] = useState('MXN'); // Estado para manejar la moneda seleccionada
+const CapitalChart = ({ results, formData }) => {
+  const [currency, setCurrency] = useState('MXN');
+
+  // Función para generar el contenido del reporte en HTML
+  const generateReportContent = () => {
+    if (!results || !formData) return '';
+    
+    // Calcular totales
+    const capitalFinal = parseFloat(results[results.length - 1].capitalTotal.replace(/[^0-9.-]/g, ''));
+    const capitalInicial = parseFloat(results[0].capitalInicial.replace(/[^0-9.-]/g, ''));
+    const totalIntereses = capitalFinal - capitalInicial;
+
+    return `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Reporte de Inversión</title>
+        <style>
+          body { font-family: Arial, sans-serif; padding: 20px; }
+          h1 { color: #1C2B54; text-align: center; }
+          .section { margin-bottom: 20px; border: 1px solid #ddd; padding: 15px; border-radius: 5px; }
+          .section-title { color: #1C2B54; font-size: 18px; margin-bottom: 10px; }
+          table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+          th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+          th { background-color: #1C2B54; color: white; }
+          tr:nth-child(even) { background-color: #f2f2f2; }
+          .summary { display: flex; justify-content: space-between; margin-top: 20px; }
+          .summary-item { text-align: center; padding: 10px; border: 1px solid #ddd; border-radius: 5px; flex: 1; margin: 0 10px; }
+        </style>
+      </head>
+      <body>
+        <h1>Reporte de Inversión</h1>
+        <p style="text-align: center; color: #666;">Generado el ${new Date().toLocaleDateString('es-MX')}</p>
+        
+        <!-- Información del Cliente -->
+        <div class="section">
+          <div class="section-title">Información del Cliente</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div>
+              <p><strong>Nombre:</strong> ${formData.nombre || 'No proporcionado'}</p>
+              <p><strong>Correo:</strong> ${formData.correoElectronico || 'No proporcionado'}</p>
+            </div>
+            <div>
+              <p><strong>Fecha Nacimiento:</strong> ${formData.fechaNacimiento ? new Date(formData.fechaNacimiento).toLocaleDateString('es-MX') : 'No proporcionada'}</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Detalles de la Inversión -->
+        <div class="section">
+          <div class="section-title">Detalles de la Inversión</div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+            <div>
+              <p><strong>Capital Inicial:</strong> $${capitalInicial.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+              <p><strong>Moneda:</strong> ${currency}</p>
+            </div>
+            <div>
+              <p><strong>Plazo:</strong> ${formData.anosInvertir} años</p>
+              <p><strong>Tasa Anual:</strong> ${formData.tasaInteresAnual || '24'}%</p>
+            </div>
+            <div>
+              <p><strong>Frecuencia:</strong> ${formData.entregaIntereses}</p>
+              <p><strong>Recapitalización:</strong> ${formData.recapitalizacionAnual}%</p>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Resumen -->
+        <div class="summary">
+          <div class="summary-item">
+            <div style="font-size: 24px; font-weight: bold; color: #1C2B54;">$${capitalInicial.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+            <div>Capital Inicial</div>
+          </div>
+          <div class="summary-item">
+            <div style="font-size: 24px; font-weight: bold; color: #1C2B54;">$${capitalFinal.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+            <div>Capital Final</div>
+          </div>
+          <div class="summary-item">
+            <div style="font-size: 24px; font-weight: bold; color: #1C2B54;">$${totalIntereses.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+            <div>Intereses Generados</div>
+          </div>
+        </div>
+        
+        <!-- Tabla de Resultados -->
+        <div class="section">
+          <div class="section-title">Proyección de Inversión</div>
+          <table>
+            <thead>
+              <tr>
+                <th>Periodo</th>
+                <th>Año</th>
+                <th>Capital Acumulado</th>
+                <th>Interés Generado</th>
+                <th>Capital Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${results.map((result, index) => `
+                <tr>
+                  <td>${result.periodo}</td>
+                  <td>${result.año}</td>
+                  <td>$${parseFloat(result.saldoAcumulado).toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                  <td>$${parseFloat(result.interesGenerado).toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                  <td>$${parseFloat(result.capitalTotal).toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Notas -->
+        <div style="margin-top: 30px; font-size: 12px; color: #666; text-align: center;">
+          <p>Este reporte es una proyección basada en los datos proporcionados y no garantiza rendimientos futuros.</p>
+          <p>Los resultados pueden variar dependiendo de las condiciones del mercado.</p>
+        </div>
+      </body>
+      </html>
+    `;
+  };
+
+  const handlePrint = () => {
+    if (!results || !formData) {
+      alert('No hay datos disponibles para generar el reporte');
+      return;
+    }
+
+    const reportContent = generateReportContent();
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(reportContent);
+    printWindow.document.close();
+    printWindow.focus();
+    
+    // Esperar a que se cargue el contenido antes de imprimir
+    printWindow.onload = () => {
+      printWindow.print();
+    };
+  };
 
   // Función para calcular el capital en la moneda seleccionada
   const getCapitalData = () => {
@@ -114,8 +249,11 @@ const CapitalChart = ({ results }) => {
 
       {/* Botón de Imprimir Reporte */}
       <div className="mt-4 flex justify-end">
-        <button className="px-4 py-2 bg-[#0EA2CB] text-white rounded-md hover:bg-[#54c3e2] focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm">
-          Imprimir Reporte
+        <button 
+          onClick={handlePrint}
+          className="px-4 py-2 bg-[#0EA2CB] text-white rounded-md hover:bg-[#54c3e2] focus:outline-none focus:ring-2 focus:ring-blue-400 text-sm"
+        >
+          Generar Reporte
         </button>
       </div>
     </div>
