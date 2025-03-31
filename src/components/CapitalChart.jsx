@@ -1,9 +1,21 @@
-import { useState } from 'react';
+import { useState, useEffect} from 'react';
 import { Chart as ChartJS } from 'chart.js/auto';
 import { Bar } from 'react-chartjs-2';
+import { fetchExchangeRate } from '../../functions';
 
 const CapitalChart = ({ results, formData }) => {
   const [currency, setCurrency] = useState('MXN');
+  const [exchangeRate, setExchangeRate] = useState(20); // Valor por defecto
+
+  useEffect(() => {
+    const getExchangeRate = async () => {
+      const rate = await fetchExchangeRate();
+      setExchangeRate(rate);
+    };
+    
+    getExchangeRate();
+  }, []);
+
 
   const formatDate = (dateString) => {
     if (!dateString) return 'No proporcionada';
@@ -23,6 +35,12 @@ const CapitalChart = ({ results, formData }) => {
     const capitalFinal = parseFloat(results[results.length - 1].capitalTotal.replace(/[^0-9.-]/g, ''));
     const capitalInicial = parseFloat(results[0].capitalInicial.replace(/[^0-9.-]/g, ''));
     const totalIntereses = capitalFinal - capitalInicial;
+  
+    // Convertir a dólares si es necesario
+    const displayCapitalInicial = currency === 'USD' ? capitalInicial / exchangeRate : capitalInicial;
+    const displayCapitalFinal = currency === 'USD' ? capitalFinal / exchangeRate : capitalFinal;
+    const displayTotalIntereses = currency === 'USD' ? totalIntereses / exchangeRate : totalIntereses;
+  
 
     return `
       <!DOCTYPE html>
@@ -65,8 +83,9 @@ const CapitalChart = ({ results, formData }) => {
           <div class="section-title">Detalles de la Inversión</div>
           <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
             <div>
-              <p><strong>Capital Inicial:</strong> $${capitalInicial.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+              <p><strong>Capital Inicial:</strong> $${displayCapitalInicial.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
               <p><strong>Moneda:</strong> ${currency}</p>
+              ${currency === 'USD' ? `<p><strong>Tipo de cambio:</strong> $${exchangeRate.toFixed(4)} MXN/USD</p>` : ''}
             </div>
             <div>
               <p><strong>Plazo:</strong> ${formData.anosInvertir} años</p>
@@ -156,7 +175,7 @@ const CapitalChart = ({ results, formData }) => {
       parseFloat(result.capitalTotal.replace('$', '').replace(',', ''))
     );
     if (currency === 'USD') {
-      return baseData.map((value) => value / 20); // Convertir a dólares (1 USD = 20 MXN)
+      return baseData.map((value) => value / exchangeRate); // Convertir a dólares usando el tipo de cambio actual
     }
     return baseData; // Mantener en MXN
   };
@@ -229,8 +248,14 @@ const CapitalChart = ({ results, formData }) => {
   };
 
   return (
-    <div className="mt-8 bg-gray-100 p-4 rounded-lg shadow-md w-3/4 mx-auto"> {/* Ancho ajustado y centrado */}
-      <h2 className="text-xl font-bold text-gray-900 mb-2 text-center">Capital Real ({currency})</h2> {/* Centrado */}
+    <div className="mt-8 bg-gray-100 p-4 rounded-lg shadow-md w-3/4 mx-auto">
+      <h2 className="text-xl font-bold text-gray-900 mb-2 text-center">Capital Real ({currency})</h2>
+      
+      {currency === 'USD' && (
+        <p className="text-center text-sm text-gray-600 mb-2">
+          Tipo de cambio: $1 USD = ${exchangeRate.toFixed(4)} MXN
+        </p>
+      )}
 
       {/* Botones de Moneda */}
       <div className="mb-2 flex justify-center">
