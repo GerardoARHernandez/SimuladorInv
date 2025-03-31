@@ -1,7 +1,7 @@
 import { useState, useEffect} from 'react';
 import { Chart as ChartJS } from 'chart.js/auto';
 import { Bar } from 'react-chartjs-2';
-import { fetchExchangeRate } from '../../functions';
+import { fetchExchangeRate } from '../functions';
 
 const CapitalChart = ({ results, formData }) => {
   const [currency, setCurrency] = useState('MXN');
