@@ -12,10 +12,10 @@ const InvestmentForm = ({ onCalculate }) => {
     capitalInicial: "",
     anosInvertir: "",
     entregaIntereses: "",
-    periodoReinversion: "",
+    periodoReinversion: "Anual", // Se deja por defecto en Anual
     aportacionPeriodica: "",
-    deseaRecapitalizar: "NO", // Nuevo campo con valor por defecto "NO"
-    recapitalizacionAnual: "100%", // Cambiado a 100% por defecto cuando es SI
+    deseaRecapitalizar: "NO",
+    recapitalizacionAnual: "100%",
     tasaInteresAnual: "24",
   });
 
@@ -34,6 +34,7 @@ const InvestmentForm = ({ onCalculate }) => {
 
   const [showInfo, setShowInfo] = useState(false);
   const [showExecutiveModal, setShowExecutiveModal] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   // Función para manejar el envío al ejecutivo
   const handleSendToExecutive = (executiveData) => {
@@ -301,20 +302,15 @@ const InvestmentForm = ({ onCalculate }) => {
 
               {/* Periodo de Reinversión */}
               <div>
-                <label className="block text-sm font-medium text-gray-700">Periodo de Reinversión:</label>
+              <label className="block text-sm font-medium text-gray-700">Periodo de Reinversión:</label>
                 <select
                   name="periodoReinversion"
                   value={formData.periodoReinversion}
                   onChange={handleChange}
-                  className="mt-1 block w-full p-2 border rounded-2xl bg-white hover:border-blue-500 focus:ring-blue-400 focus:border-blue-400"
-                  required
+                  className="mt-1 block w-full p-2 border bg-white rounded-2xl hover:border-blue-500 focus:ring-blue-400 focus:border-blue-400"
+                  disabled // Se desactiva para que no pueda cambiarse
                 >
-                  <option value="">-- Selecciona una opción --</option>
-                  <option value="Ninguna">Ninguna</option>
-                  <option value="mensual">Mensual</option>
-                  <option value="trimestral">Trimestral</option>
-                  <option value="semestral">Semestral</option>
-                  <option value="anual">Anual</option>
+                  <option value="Anual">Anual</option>
                 </select>
               </div>
 
@@ -415,10 +411,15 @@ const InvestmentForm = ({ onCalculate }) => {
                     ? 'bg-[#1C2B54] text-white hover:bg-blue-950 focus:ring-blue-700'
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
-                onClick={() => setShowExecutiveModal(true)}
-                disabled={!validateRequiredFields()}
+                onClick={() => validateRequiredFields() ? setShowExecutiveModal(true) : setShowTooltip(true)}
+                onMouseLeave={() => setShowTooltip(false)}
               >
                 Enviar a un Ejecutivo
+                {showTooltip && !validateRequiredFields() && (
+                  <div className="absolute z-10 w-64 p-2 mt-2 text-sm text-white bg-gray-800 rounded-lg shadow-lg">
+                    Complete todos los campos requeridos para habilitar esta opción
+                  </div>
+                )}
               </button>
             </div>
 

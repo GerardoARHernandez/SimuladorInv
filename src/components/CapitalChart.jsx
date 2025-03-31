@@ -5,6 +5,16 @@ import { Bar } from 'react-chartjs-2';
 const CapitalChart = ({ results, formData }) => {
   const [currency, setCurrency] = useState('MXN');
 
+  const formatDate = (dateString) => {
+    if (!dateString) return 'No proporcionada';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('es-MX', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  };
+
   // Función para generar el contenido del reporte en HTML
   const generateReportContent = () => {
     if (!results || !formData) return '';
@@ -34,7 +44,7 @@ const CapitalChart = ({ results, formData }) => {
       </head>
       <body>
         <h1>Reporte de Inversión</h1>
-        <p style="text-align: center; color: #666;">Generado el ${new Date().toLocaleDateString('es-MX')}</p>
+        <p style="text-align: center; color: #666;">Generado el ${formatDate(new Date())}</p>
         
         <!-- Información del Cliente -->
         <div class="section">
@@ -45,7 +55,7 @@ const CapitalChart = ({ results, formData }) => {
               <p><strong>Correo:</strong> ${formData.correoElectronico || 'No proporcionado'}</p>
             </div>
             <div>
-              <p><strong>Fecha Nacimiento:</strong> ${formData.fechaNacimiento ? new Date(formData.fechaNacimiento).toLocaleDateString('es-MX') : 'No proporcionada'}</p>
+              <p><strong>Fecha Nacimiento:</strong> ${formatDate(formData.fechaNacimiento)}</p>
             </div>
           </div>
         </div>
@@ -64,7 +74,7 @@ const CapitalChart = ({ results, formData }) => {
             </div>
             <div>
               <p><strong>Frecuencia:</strong> ${formData.entregaIntereses}</p>
-              <p><strong>Recapitalización:</strong> ${formData.recapitalizacionAnual}%</p>
+              <p><strong>Recapitalización:</strong> ${formData.recapitalizacionAnual}</p>
             </div>
           </div>
         </div>
