@@ -58,7 +58,10 @@ const InvestmentForm = ({ onCalculate }) => {
     );
   };
 
-  const [showInfo, setShowInfo] = useState(false);
+  const [showInfo, setShowInfo] = useState({
+    visible: false,
+    position: { top: 0, left: 0 }
+  });
   const [showExecutiveModal, setShowExecutiveModal] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -74,10 +77,17 @@ const InvestmentForm = ({ onCalculate }) => {
     alert('Su información ha sido enviada al ejecutivo. Nos pondremos en contacto pronto.');
   };
 
-  const toggleInfo = () => {
-    setShowInfo(true);
+  const toggleInfo = (e) => {
+    const buttonRect = e.currentTarget.getBoundingClientRect();
+    setShowInfo({
+      visible: true,
+      position: {
+        top: buttonRect.bottom + window.scrollY + 5, // 5px debajo del botón
+        left: buttonRect.left + window.scrollX
+      }
+    });
     setTimeout(() => {
-      setShowInfo(false);
+      setShowInfo(prev => ({...prev, visible: false}));
     }, 5000);
   };
 
@@ -498,8 +508,14 @@ const InvestmentForm = ({ onCalculate }) => {
               </div>
             </div>
 
-            {showInfo && (
-              <div className="z-10 absolute top-16 right-0 bg-white p-4 rounded-lg shadow-lg border border-gray-200 w-64">
+            {showInfo.visible && (
+              <div 
+                className="z-10 absolute bg-white p-4 rounded-lg shadow-lg border border-gray-200 w-64"
+                style={{
+                  top: `${showInfo.position.top}px`,
+                  left: `${showInfo.position.left}px`
+                }}
+              >
                 <p className="text-sm text-gray-700">
                   Envíe su formulario y un ejecutivo se comunicará con usted.
                 </p>
