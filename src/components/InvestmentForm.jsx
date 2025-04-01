@@ -232,7 +232,7 @@ const InvestmentForm = ({ onCalculate }) => {
       <div className="p-8 bg-gray-50 rounded-xl shadow-xl max-w-5xl mx-0 text-gray-800 font-sans grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Formulario */}
         <div className="col-span-2">
-          <div className="md:hidden col-span-1 overflow-hidden relative mb-5 mt-0">
+          <div className="md:hidden rounded-t-3xl col-span-1 overflow-hidden relative mb-5 mt-0 h-36">
             <img
               src="/invers.png"
               alt="Simulador"
