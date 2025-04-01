@@ -147,6 +147,7 @@ const InvestmentForm = ({ onCalculate }) => {
     let capitalInicialAcumulado = capitalInicialNum;
     let totalInteresGenerado = 0;
     let interesRecapitalizadoAcumulado = 0;
+    let anoAnt = 0;
     const resultsCalculados = [];
 
     for (let i = 1; i <= anosInvertirNum * periodosPorAno; i++) {
@@ -164,7 +165,7 @@ const InvestmentForm = ({ onCalculate }) => {
         interesEntregado = interesGenerado - interesRecapitalizado;
         interesRecapitalizadoAcumulado = 0;
       } else {
-        if (anoActual > 1 && anoActual > (i - 1) / periodosPorAno) {
+        if (anoActual > 1 && anoActual > anoAnt) {
           capitalInicialAcumulado += interesRecapitalizadoAcumulado;
           interesRecapitalizadoAcumulado = 0;
         }
@@ -189,6 +190,7 @@ const InvestmentForm = ({ onCalculate }) => {
         interesEntregado: interesEntregado.toFixed(2),
         capitalTotal: capitalTotal.toFixed(2),
       });
+      anoAnt = anoActual;
     }
 
     onCalculate(resultsCalculados, formData); // Enviar ambos: resultados y datos del formulario
