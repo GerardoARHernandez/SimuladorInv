@@ -24,7 +24,7 @@ function App() {
         </div>
         {results && <div className='max-w-5xl mx-auto bg-white p-8 rounded-lg shadow-lg'> 
         <Resultado />
-          {results && <InvestmentResults results={results} />}
+          {results && <InvestmentResults results={results} formData={formData} />}
           {results && formData && <CapitalChart results={results} formData={formData} />}
         </div>}
       </div>

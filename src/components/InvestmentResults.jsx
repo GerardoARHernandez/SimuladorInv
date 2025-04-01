@@ -1,4 +1,4 @@
-const InvestmentResults = ({ results }) => {
+const InvestmentResults = ({ results, formData }) => {
   // Función para formatear números con comas
   const formatNumber = (value) => {
     // Primero convertimos a número por si viene como string
@@ -9,6 +9,25 @@ const InvestmentResults = ({ results }) => {
       maximumFractionDigits: 2
     });
   };
+
+  // Obtener el texto de la columna según la frecuencia seleccionada
+  const getInteresColumnHeader = () => {
+    switch(formData.entregaIntereses) {
+      case 'mensual':
+        return 'Interés Mensual';
+      case 'trimestral':
+        return 'Interés Trimestral';
+      case 'semestral':
+        return 'Interés Semestral';
+      case 'anual':
+        return 'Interés Anual';
+      default:
+        return 'Interés Generado';
+    }
+  };
+
+  // Determinar si debemos mostrar la columna de interés
+  const showInteresColumn = formData.entregaIntereses !== 'anual';
 
   return (
     <>
@@ -22,7 +41,13 @@ const InvestmentResults = ({ results }) => {
               <th className="px-3 py-3 text-sm font-semibold text-center uppercase">Capital Inicial</th>
               <th className="px-3 py-3 text-sm font-semibold text-center uppercase">Aportación</th>
               <th className="px-3 py-3 text-sm font-semibold text-center uppercase">Saldo Acumulado</th>
-              <th className="px-3 py-3 text-sm font-semibold text-center uppercase">Interés Mensual</th>
+              
+              {showInteresColumn && (
+                <th className="px-3 py-3 text-sm font-semibold text-center uppercase">
+                  {getInteresColumnHeader()}
+                </th>
+              )}
+              
               <th className="px-3 py-3 text-sm font-semibold text-center uppercase">Interés Anual</th>
               <th className="px-3 py-3 text-sm font-semibold text-center uppercase">Interés Recapitalizado</th>
               <th className="px-3 py-3 text-sm font-semibold text-center uppercase">Interés Entregado</th>
@@ -40,7 +65,11 @@ const InvestmentResults = ({ results }) => {
                   <td className="px-3 py-3 text-sm text-center">{formatNumber(result.capitalInicial)}</td>
                   <td className="px-3 py-3 text-sm text-center">{formatNumber(result.capitalAdicional)}</td>
                   <td className="px-3 py-3 text-sm text-center">{formatNumber(result.saldoAcumulado)}</td>
-                  <td className="px-3 py-3 text-sm text-center">{formatNumber(result.interesGenerado)}</td>
+                  
+                  {showInteresColumn && (
+                    <td className="px-3 py-3 text-sm text-center">{formatNumber(result.interesGenerado)}</td>
+                  )}
+                  
                   <td className="px-3 py-3 text-sm text-center">{formatNumber(result.interesGenerado * 12)}</td>
                   <td className="px-3 py-3 text-sm text-center">{formatNumber(result.interesRecapitalizado)}</td>
                   <td className="px-3 py-3 text-sm text-center">{formatNumber(result.interesEntregado)}</td>
