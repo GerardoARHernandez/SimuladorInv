@@ -83,12 +83,12 @@ const InvestmentForm = ({ onCalculate }) => {
       visible: true,
       position: {
         top: buttonRect.bottom + window.scrollY + 5, // 5px debajo del botón
-        left: buttonRect.left + window.scrollX
+        right: buttonRect.right + window.scrollX
       }
     });
     setTimeout(() => {
       setShowInfo(prev => ({...prev, visible: false}));
-    }, 5000);
+    }, 4000);
   };
 
   const handleChange = (e) => {
