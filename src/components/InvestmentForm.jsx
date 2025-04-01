@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ExecutiveModal from "./ExecutiveModal";
 import { faCalendarDays } from "@fortawesome/free-regular-svg-icons";
 import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
@@ -12,12 +12,38 @@ const InvestmentForm = ({ onCalculate }) => {
     capitalInicial: "",
     anosInvertir: "",
     entregaIntereses: "",
-    periodoReinversion: "Anual", // Se deja por defecto en Anual
+    periodoReinversion: "Anual",
     aportacionPeriodica: "",
     deseaRecapitalizar: "NO",
     recapitalizacionAnual: "100%",
-    tasaInteresAnual: "24",
+    tasaInteresAnual: "24", // Valor por defecto
   });
+
+  const [loading, setLoading] = useState(true); // Estado para manejar la carga
+
+  // Obtener tasa de interés al montar el componente
+  useEffect(() => {
+    const fetchInterestRate = async () => {
+      try {
+        const response = await fetch('https://souvenir-site.com/WebTarjet/APIEmpresas/ConsultaTasaInteresSimulador');
+        const data = await response.json();
+        
+        if (data.TASA_INTERES_ANUAL) {
+          setFormData(prev => ({
+            ...prev,
+            tasaInteresAnual: data.TASA_INTERES_ANUAL.toString()
+          }));
+        }
+      } catch (error) {
+        console.error('Error al obtener la tasa de interés:', error);
+        // Mantener el valor por defecto si hay error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInterestRate();
+  }, []);
 
   const validateRequiredFields = () => {
     return (
@@ -482,8 +508,17 @@ const InvestmentForm = ({ onCalculate }) => {
 
             {/* Información adicional */}
             <div className="text-center text-gray-600 text-sm">
-              <p>Tasa anual de interés del 24%</p>
-              <p>Fecha de cálculo: {new Date().toLocaleDateString("es-mx", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</p>
+              {loading ? (
+                <p>Cargando tasa de interés...</p>
+              ) : (
+                <p>Tasa anual de interés del {formData.tasaInteresAnual}%</p>
+              )}
+              <p>Fecha de cálculo: {new Date().toLocaleDateString("es-mx", { 
+                weekday: "long", 
+                year: "numeric", 
+                month: "long", 
+                day: "numeric" 
+              })}</p>
             </div>
           </form>
         </div>
