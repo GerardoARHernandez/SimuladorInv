@@ -206,6 +206,13 @@ const InvestmentForm = ({ onCalculate }) => {
       <div className="p-8 bg-gray-50 rounded-xl shadow-xl max-w-5xl mx-0 text-gray-800 font-sans grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Formulario */}
         <div className="col-span-2">
+          <div className="md:hidden col-span-1 overflow-hidden relative mb-5 mt-0">
+            <img
+              src="/invers.png"
+              alt="Simulador"
+              className="object-cover w-lvw h-full rounded-lg shadow-md"
+            />
+          </div>
           <h1 className="text-2xl font-bold text-[#1C2B54] mb-6 uppercase text-center">
             Simulador de inversión
           </h1>
@@ -399,39 +406,71 @@ const InvestmentForm = ({ onCalculate }) => {
             )}
 
             {/* Botones */}
-            <div className="flex justify-center space-x-4 mt-6">
-              <button
-                type="submit"
-                className="px-8 py-2 m-2 bg-[#0EA2CB] text-white rounded-full hover:bg-[#278eaa] focus:outline-none focus:ring-2 focus:ring-blue-600 text-lg"
-              >
-                Calcular Inversión
-              </button>
-              <button
-                type="button"
-                className={`px-8 py-2 m-2 rounded-full focus:outline-none focus:ring-2 text-lg ${
-                  validateRequiredFields() 
-                    ? 'bg-[#1C2B54] text-white hover:bg-blue-950 focus:ring-blue-700'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
-                onClick={() => validateRequiredFields() ? setShowExecutiveModal(true) : setShowTooltip(true)}
-                onMouseLeave={() => setShowTooltip(false)}
-              >
-                Enviar a un Ejecutivo
-                {showTooltip && !validateRequiredFields() && (
-                  <div className="absolute z-10 w-64 p-2 mt-2 text-sm text-white bg-gray-800 rounded-lg shadow-lg">
-                    Complete todos los campos requeridos para habilitar esta opción
-                  </div>
-                )}
-              </button>
-            </div>
+            <div className="mt-6">
+              {/* Contenedor para pantallas grandes */}
+              <div className="hidden md:flex justify-center space-x-4">
+                <button
+                  type="submit"
+                  className="px-8 py-2 m-2 bg-[#0EA2CB] text-white rounded-full hover:bg-[#278eaa] focus:outline-none focus:ring-2 focus:ring-blue-600 text-lg"
+                >
+                  Calcular Inversión
+                </button>
+                <button
+                  type="button"
+                  className={`px-8 py-2 m-2 rounded-full focus:outline-none focus:ring-2 text-lg ${
+                    validateRequiredFields() 
+                      ? 'bg-[#1C2B54] text-white hover:bg-blue-950 focus:ring-blue-700'
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  }`}
+                  onClick={() => validateRequiredFields() ? setShowExecutiveModal(true) : setShowTooltip(true)}
+                  onMouseLeave={() => setShowTooltip(false)}
+                >
+                  Enviar a un Ejecutivo
+                  {showTooltip && !validateRequiredFields() && (
+                    <div className="absolute z-10 w-64 p-2 mt-2 text-sm text-white bg-gray-800 rounded-lg shadow-lg">
+                      Complete todos los campos requeridos para habilitar esta opción
+                    </div>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={toggleInfo}
+                  className="px-3 py-2 m-2 text-[#0EA2CB] hover:text-[#1C2B54] focus:outline-none"
+                >
+                  <FontAwesomeIcon icon={faInfoCircle} className="w-6 h-6" />
+                </button>
+              </div>
 
-            <button
-              type="button"
-              onClick={toggleInfo}
-              className="px-3 py-2 m-2 text-[#0EA2CB] hover:text-[#1C2B54] focus:outline-none"
-            >
-              <FontAwesomeIcon icon={faInfoCircle} className="w-6 h-6" />
-            </button>
+              {/* Contenedor para pantallas pequeñas */}
+              <div className="md:hidden flex flex-col items-center">
+                <button
+                  type="submit"
+                  className="w-full py-2 m-1 bg-[#0EA2CB] text-white rounded-full hover:bg-[#0f87a8] focus:outline-none focus:ring-2 focus:ring-blue-600 text-lg"
+                >
+                  Calcular Inversión
+                </button>
+                <div className="flex w-full justify-between mt-2">
+                  <button
+                    type="button"
+                    className={`w-3/4 py-1 m-1 rounded-full focus:outline-none focus:ring-2 text-lg ${
+                      validateRequiredFields() 
+                        ? 'bg-[#1C2B54] text-white hover:bg-blue-950 focus:ring-blue-700'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
+                    onClick={() => validateRequiredFields() ? setShowExecutiveModal(true) : setShowTooltip(true)}
+                  >
+                    Enviar a Ejecutivo
+                  </button>
+                  <button
+                    type="button"
+                    onClick={toggleInfo}
+                    className="w-1/4 py-2 m-1 text-[#0EA2CB] hover:text-[#1C2B54] focus:outline-none flex items-center justify-center"
+                  >
+                    <FontAwesomeIcon icon={faInfoCircle} className="w-6 h-6" />
+                  </button>
+                </div>
+              </div>
+            </div>
 
             {showInfo && (
               <div className="z-10 absolute top-16 right-0 bg-white p-4 rounded-lg shadow-lg border border-gray-200 w-64">
@@ -450,7 +489,7 @@ const InvestmentForm = ({ onCalculate }) => {
         </div>
 
         {/* Imagen */}
-        <div className="col-span-1 overflow-hidden relative">
+        <div className="hidden md:block md:col-span-1 md:overflow-hidden md:relative">
           <img
             src="/invers.png"
             alt="Simulador"

@@ -31,7 +31,7 @@ const InvestmentResults = ({ results, formData }) => {
 
   return (
     <>
-      <div className="mt-0 max-w-5xl bg-white p-6 pt-0 rounded-xl shadow-md w-full overflow-x-auto">
+      <div className="mt-0 max-w-6xl bg-white p-6 pt-0 rounded-xl shadow-md w-full overflow-x-auto">
         <table className="min-w-full bg-white border-collapse table-auto">
           <thead>
             <tr className="bg-blue-900 text-white">
