@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import ExecutiveModal from "./ExecutiveModal";
 import { faCalendarDays } from "@fortawesome/free-regular-svg-icons";
 import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
@@ -13,37 +13,11 @@ const InvestmentForm = ({ onCalculate }) => {
     anosInvertir: "",
     entregaIntereses: "",
     periodoReinversion: "Anual",
-    aportacionPeriodica: "",
+    aportacionPeriodica: "0", // Valor por defecto 0
     deseaRecapitalizar: "NO",
     recapitalizacionAnual: "100%",
     tasaInteresAnual: "24", // Valor por defecto
   });
-
-  const [loading, setLoading] = useState(true); // Estado para manejar la carga
-
-  // Obtener tasa de interés al montar el componente
-  useEffect(() => {
-    const fetchInterestRate = async () => {
-      try {
-        const response = await fetch('https://souvenir-site.com/WebTarjet/APIEmpresas/ConsultaTasaInteresSimulador');
-        const data = await response.json();
-        
-        if (data.TASA_INTERES_ANUAL) {
-          setFormData(prev => ({
-            ...prev,
-            tasaInteresAnual: data.TASA_INTERES_ANUAL.toString()
-          }));
-        }
-      } catch (error) {
-        console.error('Error al obtener la tasa de interés:', error);
-        // Mantener el valor por defecto si hay error
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchInterestRate();
-  }, []);
 
   const validateRequiredFields = () => {
     return (
@@ -53,8 +27,8 @@ const InvestmentForm = ({ onCalculate }) => {
       formData.capitalInicial &&
       formData.anosInvertir &&
       formData.entregaIntereses &&
-      formData.periodoReinversion &&
-      (formData.periodoReinversion === "Ninguna" || formData.aportacionPeriodica)
+      formData.periodoReinversion
+      // Eliminamos la validación de aportacionPeriodica ya que siempre tendrá valor
     );
   };
 
@@ -67,13 +41,10 @@ const InvestmentForm = ({ onCalculate }) => {
 
   // Función para manejar el envío al ejecutivo
   const handleSendToExecutive = (executiveData) => {
-    // Aquí puedes implementar el envío real (API, email, etc.)
     console.log('Datos enviados al ejecutivo:', {
       ...formData,
       ...executiveData
     });
-    
-    // Mostrar confirmación al usuario
     alert('Su información ha sido enviada al ejecutivo. Nos pondremos en contacto pronto.');
   };
 
@@ -82,8 +53,8 @@ const InvestmentForm = ({ onCalculate }) => {
     setShowInfo({
       visible: true,
       position: {
-        top: buttonRect.bottom + window.scrollY + 5, // 5px debajo del botón
-        right: buttonRect.right + window.scrollX
+        top: buttonRect.bottom + window.scrollY + 5,
+        left: buttonRect.left + window.scrollX
       }
     });
     setTimeout(() => {
@@ -94,24 +65,19 @@ const InvestmentForm = ({ onCalculate }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Si el campo cambiado es "periodoReinversion" y el valor es "Ninguna", setear "aportacionPeriodica" a "0"
     if (name === "periodoReinversion" && value === "Ninguna") {
       setFormData({
         ...formData,
         [name]: value,
-        aportacionPeriodica: "0",
+        aportacionPeriodica: "0" // Forzar 0 si no hay reinversión
       });
-    } 
-    // Si el campo cambiado es "deseaRecapitalizar"
-    else if (name === "deseaRecapitalizar") {
+    } else if (name === "deseaRecapitalizar") {
       setFormData({
         ...formData,
         [name]: value,
         recapitalizacionAnual: value === "SI" ? "100%" : "0%"
       });
-    }
-    // En cualquier otro caso, actualizar el estado normalmente
-    else {
+    } else {
       setFormData({
         ...formData,
         [name]: value,
@@ -120,6 +86,14 @@ const InvestmentForm = ({ onCalculate }) => {
   };
 
   const percentage = parseInt(formData.recapitalizacionAnual, 10);
+
+  // Generar opciones de tasas de interés del 8% al 24%
+  const interestRateOptions = [];
+  for (let i = 8; i <= 24; i++) {
+    interestRateOptions.push(
+      <option key={i} value={i}>{i}%</option>
+    );
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -140,45 +114,30 @@ const InvestmentForm = ({ onCalculate }) => {
       aportacionPeriodica,
       recapitalizacionAnual,
       deseaRecapitalizar,
+      tasaInteresAnual
     } = formData;
 
     const capitalInicialNum = parseFloat(capitalInicial.replace(/,/g, ""));
     const anosInvertirNum = parseInt(anosInvertir);
     const aportacionPeriodicaNum = parseFloat(aportacionPeriodica.replace(/,/g, ""));
-    // Si no desea recapitalizar, forzar 0%
     const recapitalizacionAnualNum = deseaRecapitalizar === "SI" ? parseFloat(recapitalizacionAnual) / 100 : 0;
-    const tasaMensual = (parseFloat(formData.tasaInteresAnual) / 100) / 12;
+    const tasaMensual = (parseFloat(tasaInteresAnual) / 100) / 12;
 
     let periodosPorAno = 1;
     switch (entregaIntereses) {
-      case "mensual":
-        periodosPorAno = 12;
-        break;
-      case "trimestral":
-        periodosPorAno = 4;
-        break;
-      case "semestral":
-        periodosPorAno = 2;
-        break;
+      case "mensual": periodosPorAno = 12; break;
+      case "trimestral": periodosPorAno = 4; break;
+      case "semestral": periodosPorAno = 2; break;
     }
 
     let tasaPorPeriodo;
     switch (entregaIntereses) {
-    case "mensual":
-      tasaPorPeriodo = tasaMensual;
-      break;
-    case "trimestral":
-      tasaPorPeriodo = tasaMensual * 3;
-      break;
-    case "semestral":
-      tasaPorPeriodo = tasaMensual * 6;
-      break;
-    case "anual":
-      tasaPorPeriodo = tasaMensual * 12;
-      break;
+      case "mensual": tasaPorPeriodo = tasaMensual; break;
+      case "trimestral": tasaPorPeriodo = tasaMensual * 3; break;
+      case "semestral": tasaPorPeriodo = tasaMensual * 6; break;
+      case "anual": tasaPorPeriodo = tasaMensual * 12; break;
     }
     
-
     let capitalTotal = capitalInicialNum;
     let capitalInicialAcumulado = capitalInicialNum;
     let totalInteresGenerado = 0;
@@ -217,7 +176,7 @@ const InvestmentForm = ({ onCalculate }) => {
       resultsCalculados.push({
         periodo: `P${i}`,
         año: anoActual,
-        edad: edadActual + anoActual - 1, // Edad actual + años transcurridos
+        edad: edadActual + anoActual - 1,
         capitalInicial: capitalInicialNum.toFixed(2),
         capitalAdicional: aportacion.toFixed(2),
         saldoAcumulado: capitalInicialAcumulado.toFixed(2),
@@ -229,11 +188,10 @@ const InvestmentForm = ({ onCalculate }) => {
       anoAnt = anoActual;
     }
 
-    onCalculate(resultsCalculados, formData); // Enviar ambos: resultados y datos del formulario
+    onCalculate(resultsCalculados, formData);
   };
 
   const handleContainerClick = () => {
-    // Enfocar el input de fecha cuando se hace clic en el contenedor
     document.getElementById('fechaNacimiento').focus();
   };
 
@@ -327,6 +285,20 @@ const InvestmentForm = ({ onCalculate }) => {
                 />
               </div>
 
+              {/* Tasa de Interés Anual */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Tasa de Interés Anual:</label>
+                <select
+                  name="tasaInteresAnual"
+                  value={formData.tasaInteresAnual}
+                  onChange={handleChange}
+                  className="mt-1 block w-full p-2 border bg-white rounded-2xl hover:border-blue-500 focus:ring-blue-400 focus:border-blue-400"
+                  required
+                >
+                  {interestRateOptions}
+                </select>
+              </div>
+
               {/* Entrega de Intereses */}
               <div>
                 <label className="block text-sm font-medium text-gray-700">Entrega de Intereses:</label>
@@ -347,13 +319,13 @@ const InvestmentForm = ({ onCalculate }) => {
 
               {/* Periodo de Reinversión */}
               <div>
-              <label className="block text-sm font-medium text-gray-700">Periodo de Reinversión:</label>
+                <label className="block text-sm font-medium text-gray-700">Periodo de Reinversión:</label>
                 <select
                   name="periodoReinversion"
                   value={formData.periodoReinversion}
                   onChange={handleChange}
                   className="mt-1 block w-full p-2 border bg-white rounded-2xl hover:border-blue-500 focus:ring-blue-400 focus:border-blue-400"
-                  disabled // Se desactiva para que no pueda cambiarse
+                  disabled
                 >
                   <option value="Anual">Anual</option>
                 </select>
@@ -361,7 +333,9 @@ const InvestmentForm = ({ onCalculate }) => {
 
               {/* Aportación Periódica */}
               <div>
-                <label className="block text-sm font-medium text-gray-700">Aportación Periódica (MXN):</label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Aportación Periódica (MXN) <span className="text-gray-500">(0 si no aplica)</span>:
+                </label>
                 <input
                   type="text"
                   name="aportacionPeriodica"
@@ -371,8 +345,6 @@ const InvestmentForm = ({ onCalculate }) => {
                     handleChange({ target: { name: e.target.name, value } });
                   }}
                   className="mt-1 block w-full p-2 border rounded-2xl border-white hover:border-blue-500 focus:ring-blue-400 focus:border-blue-400"
-                  disabled={formData.periodoReinversion === "Ninguna"}
-                  required={formData.periodoReinversion !== "Ninguna"}
                 />
               </div>
             </div>
@@ -524,11 +496,7 @@ const InvestmentForm = ({ onCalculate }) => {
 
             {/* Información adicional */}
             <div className="text-center text-gray-600 text-sm">
-              {loading ? (
-                <p>Cargando tasa de interés...</p>
-              ) : (
-                <p>Tasa anual de interés del {formData.tasaInteresAnual}%</p>
-              )}
+              <p>Tasa anual de interés seleccionada: {formData.tasaInteresAnual}%</p>
               <p>Fecha de cálculo: {new Date().toLocaleDateString("es-mx", { 
                 weekday: "long", 
                 year: "numeric", 
