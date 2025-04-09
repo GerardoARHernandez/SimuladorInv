@@ -2,96 +2,77 @@ import { useState } from 'react';
 
 const ExecutiveModal = ({ formData, onClose, onSend }) => {
   const [executiveData, setExecutiveData] = useState({
-    nombreEjecutivo: '',
-    rendimientoMensual: '',
-    notasAdicionales: ''
+    nombre: '',
+    comentarios: '',
+    objetivoRendimiento: ''
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setExecutiveData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setExecutiveData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Combinar los datos del formulario principal con los del modal
-    const dataToSend = {
-      ...formData,
-      ...executiveData
-    };
-    onSend(dataToSend);
+  const handleSubmit = () => {
+    onSend(executiveData); // Pasar todos los datos del ejecutivo
     onClose();
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6">
-        <h2 className="text-xl font-bold text-[#1C2B54] mb-4">Contactar Ejecutivo</h2>
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+      <div className="bg-white p-6 rounded-lg w-full max-w-md">
+        <h2 className="text-xl font-bold mb-4">Datos del Ejecutivo</h2>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nombre del ejecutivo que lo atendió:
-            </label>
+            <label className="block mb-1">Nombre del Ejecutivo</label>
             <input
               type="text"
-              name="nombreEjecutivo"
-              value={executiveData.nombreEjecutivo}
+              name="nombre"
+              value={executiveData.nombre}
               onChange={handleChange}
-              className="w-full p-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              className="w-full p-2 border rounded"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              ¿Cuál sería su objetivo de rendimiento mensual? (%)
-            </label>
+            <label className="block mb-1">Objetivo de rendimiento mensual (%)</label>
             <input
               type="number"
-              name="rendimientoMensual"
-              value={executiveData.rendimientoMensual}
+              name="objetivoRendimiento"
+              value={executiveData.objetivoRendimiento}
               onChange={handleChange}
-              min="0"
-              max="100"
-              step="0.1"
-              className="w-full p-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500"
+              className="w-full p-2 border rounded"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Notas adicionales (opcional)
-            </label>
+            <label className="block mb-1">Comentarios adicionales</label>
             <textarea
-              name="notasAdicionales"
-              value={executiveData.notasAdicionales}
+              name="comentarios"
+              value={executiveData.comentarios}
               onChange={handleChange}
+              className="w-full p-2 border rounded"
               rows="3"
-              className="w-full p-2 border rounded-lg focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
+        </div>
 
-          <div className="flex justify-end space-x-3 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300"
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-[#0EA2CB] text-white rounded-lg hover:bg-[#278eaa]"
-            >
-              Enviar
-            </button>
-          </div>
-        </form>
+        <div className="mt-6 flex justify-end space-x-3">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-gray-300 rounded"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleSubmit}
+            className="px-4 py-2 bg-blue-600 text-white rounded"
+          >
+            Enviar
+          </button>
+        </div>
       </div>
     </div>
   );

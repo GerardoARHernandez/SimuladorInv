@@ -1,10 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ExecutiveModal from "./ExecutiveModal";
 import { faCalendarDays } from "@fortawesome/free-regular-svg-icons";
 import { faInfoCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import emailjs from '@emailjs/browser';
+
 
 const InvestmentForm = ({ onCalculate }) => {
+  useEffect(() => {
+    emailjs.init(userId); // Tu User ID público
+  }, []);
+
+  const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+  const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+  const userId = import.meta.env.VITE_EMAILJS_USER_ID;
+
   const [formData, setFormData] = useState({
     nombre: "",
     correoElectronico: "",
@@ -38,14 +48,55 @@ const InvestmentForm = ({ onCalculate }) => {
   });
   const [showExecutiveModal, setShowExecutiveModal] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
-
-  // Función para manejar el envío al ejecutivo
-  const handleSendToExecutive = (executiveData) => {
-    console.log('Datos enviados al ejecutivo:', {
-      ...formData,
-      ...executiveData
-    });
-    alert('Su información ha sido enviada al ejecutivo. Nos pondremos en contacto pronto.');
+  
+  const handleSendToExecutive = async (executiveData) => {
+    try {
+      // Verificar que los datos del ejecutivo estén completos
+      if (!executiveData.nombre) {
+        alert('Por favor complete todos los datos del ejecutivo');
+        return;
+      }
+  
+      const messageContent = `
+        <strong>Datos del Cliente:</strong><br>
+        Nombre: ${formData.nombre}<br>
+        Email: ${formData.correoElectronico}<br>
+        Fecha Nacimiento: ${formData.fechaNacimiento}<br>
+        Capital Inicial: $${formData.capitalInicial} MXN<br>
+        Años a Invertir: ${formData.anosInvertir}<br>
+        Tasa de Interés: ${formData.tasaInteresAnual}%<br>
+        Entrega de Intereses: ${formData.entregaIntereses}<br>
+        Recapitalización: ${formData.deseaRecapitalizar === "SI" ? formData.recapitalizacionAnual : "No"}<br><br>
+        
+        <strong>Datos del Ejecutivo:</strong><br>
+        Nombre: ${executiveData.nombre}<br>
+        Objetivo de Rendimiento: ${executiveData.objetivoRendimiento}%<br>
+        Comentarios: ${executiveData.comentarios || 'Ninguno'}
+      `;
+  
+      const templateParams = {
+        email: formData.correoElectronico,
+        name: formData.nombre,
+        time: new Date().toLocaleString('es-MX'),
+        message: messageContent,
+        title: `Solicitud de ejecutivo - ${formData.nombre}`
+      };
+  
+      console.log('Datos a enviar:', { templateParams, executiveData });
+  
+      await emailjs.send(
+        serviceId,
+        templateId,
+        templateParams,
+        userId
+      );
+  
+      alert('Información enviada correctamente al ejecutivo');
+      setShowExecutiveModal(false);
+    } catch (error) {
+      console.error('Error al enviar:', error);
+      alert('Error al enviar. Por favor intente nuevamente.');
+    }
   };
 
   const toggleInfo = (e) => {
