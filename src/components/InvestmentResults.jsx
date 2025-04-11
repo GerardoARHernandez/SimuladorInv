@@ -29,6 +29,21 @@ const InvestmentResults = ({ results, formData }) => {
   // Determinar si debemos mostrar la columna de interés
   const showInteresColumn = formData.entregaIntereses !== 'anual';
 
+  const getColumnHeader = () => {
+    switch(formData.entregaIntereses) {
+      case 'mensual':
+        return 'Interés Entregado Mensual';
+      case 'trimestral':
+        return 'Interés Entregado Trimestral';
+      case 'semestral':
+        return 'Interés Entregado Semestral';
+      case 'anual':
+        return 'Interés Entregado Anual';
+      default:
+        return 'Interés Entregado';
+    }
+  };
+
   return (
     <>
       <div className="mt-0 max-w-6xl bg-white p-6 pt-0 rounded-xl shadow-md w-full overflow-x-auto">
@@ -50,7 +65,11 @@ const InvestmentResults = ({ results, formData }) => {
               
               <th className="px-3 py-3 text-sm font-semibold text-center uppercase">Interés Anual</th>
               <th className="px-3 py-3 text-sm font-semibold text-center uppercase">Interés Recapitalizado</th>
-              <th className="px-3 py-3 text-sm font-semibold text-center uppercase">Interés Entregado</th>
+              
+              <th className="px-3 py-3 text-sm font-semibold text-center uppercase">
+                {getColumnHeader()}
+              </th>
+
               <th className="px-3 py-3 text-sm font-semibold text-center uppercase rounded-tr-lg">Capital Total</th>
             </tr>
           </thead>
