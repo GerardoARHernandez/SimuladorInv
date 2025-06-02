@@ -7,13 +7,14 @@ import emailjs from '@emailjs/browser';
 
 
 const InvestmentForm = ({ onCalculate }) => {
-  useEffect(() => {
-    emailjs.init(userId); // Tu User ID público
-  }, []);
-
+  
   const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
   const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
   const userId = import.meta.env.VITE_EMAILJS_USER_ID;
+
+  useEffect(() => {
+    emailjs.init(userId); // Tu User ID público
+  }, []);
 
   const [formData, setFormData] = useState({
     nombre: "",
@@ -149,7 +150,7 @@ const InvestmentForm = ({ onCalculate }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Calcular edad actual basada en fecha de nacimiento
+    // Calcular edad actual
     const birthDate = new Date(formData.fechaNacimiento);
     const today = new Date();
     let edadActual = today.getFullYear() - birthDate.getFullYear();
@@ -172,71 +173,73 @@ const InvestmentForm = ({ onCalculate }) => {
     const anosInvertirNum = parseInt(anosInvertir);
     const aportacionPeriodicaNum = parseFloat(aportacionPeriodica.replace(/,/g, ""));
     const recapitalizacionAnualNum = deseaRecapitalizar === "SI" ? parseFloat(recapitalizacionAnual) / 100 : 0;
-    const tasaMensual = (parseFloat(tasaInteresAnual) / 100) / 12;
+    const tasaInteresAnualDecimal = parseFloat(tasaInteresAnual) / 100;
 
+    // Configuración de periodos
     let periodosPorAno = 1;
-    switch (entregaIntereses) {
-      case "mensual": periodosPorAno = 12; break;
-      case "trimestral": periodosPorAno = 4; break;
-      case "semestral": periodosPorAno = 2; break;
-    }
-
-    let tasaPorPeriodo;
-    switch (entregaIntereses) {
-      case "mensual": tasaPorPeriodo = tasaMensual; break;
-      case "trimestral": tasaPorPeriodo = tasaMensual * 3; break;
-      case "semestral": tasaPorPeriodo = tasaMensual * 6; break;
-      case "anual": tasaPorPeriodo = tasaMensual * 12; break;
-    }
+    let periodoLabel = "Año";
+    let tasaPorPeriodo = tasaInteresAnualDecimal;
     
-    let capitalTotal = capitalInicialNum;
-    let capitalInicialAcumulado = capitalInicialNum;
-    let totalInteresGenerado = 0;
-    let interesRecapitalizadoAcumulado = 0;
-    let anoAnt = 0;
+    switch(entregaIntereses) {
+      case "mensual":
+        periodosPorAno = 12;
+        periodoLabel = "Mes";
+        tasaPorPeriodo = tasaInteresAnualDecimal / 12;
+        break;
+      case "trimestral":
+        periodosPorAno = 4;
+        periodoLabel = "Trimestre";
+        tasaPorPeriodo = tasaInteresAnualDecimal / 4;
+        break;
+      case "semestral":
+        periodosPorAno = 2;
+        periodoLabel = "Semestre";
+        tasaPorPeriodo = tasaInteresAnualDecimal / 2;
+        break;
+    }
+
+    let capitalActual = capitalInicialNum;
     const resultsCalculados = [];
+    let interesRecapitalizadoAcumulado = 0;
 
-    for (let i = 1; i <= anosInvertirNum * periodosPorAno; i++) {
-      const anoActual = Math.ceil(i / periodosPorAno);
+    for (let periodo = 1; periodo <= anosInvertirNum * periodosPorAno; periodo++) {
+      const anoActual = Math.ceil(periodo / periodosPorAno);
+      const esUltimoPeriodoDelAno = periodo % periodosPorAno === 0;
+      
+      // Aplicar aportación al inicio de cada año (excepto primer periodo)
+      const aportacion = anoActual > 1 && periodo % periodosPorAno === 1 ? aportacionPeriodicaNum : 0;
+      capitalActual += aportacion;
 
-      const aportacion = i > 1 ? aportacionPeriodicaNum : 0;
-      capitalInicialAcumulado += aportacion;
+      // Calcular intereses
+      const interesGenerado = capitalActual * tasaPorPeriodo;
+      const interesRecapitalizado = interesGenerado * recapitalizacionAnualNum;
+      const interesEntregado = interesGenerado - interesRecapitalizado;
 
-      let interesGenerado, interesRecapitalizado, interesEntregado;
+      // Acumular recapitalización
+      interesRecapitalizadoAcumulado += interesRecapitalizado;
 
-      if (periodosPorAno === 1) {
-        capitalInicialAcumulado += interesRecapitalizadoAcumulado;
-        interesGenerado = capitalInicialAcumulado * tasaPorPeriodo;
-        interesRecapitalizado = interesGenerado * recapitalizacionAnualNum;
-        interesEntregado = interesGenerado - interesRecapitalizado;
+      // Aplicar recapitalización al final de cada año
+      if (esUltimoPeriodoDelAno) {
+        capitalActual += interesRecapitalizadoAcumulado;
         interesRecapitalizadoAcumulado = 0;
-      } else {
-        if (anoActual > 1 && anoActual > anoAnt) {
-          capitalInicialAcumulado += interesRecapitalizadoAcumulado;
-          interesRecapitalizadoAcumulado = 0;
-        }
-        interesGenerado = capitalInicialAcumulado * tasaPorPeriodo;
-        interesRecapitalizado = interesGenerado * recapitalizacionAnualNum;
-        interesEntregado = interesGenerado - interesRecapitalizado;
       }
 
-      interesRecapitalizadoAcumulado += interesRecapitalizado;
-      totalInteresGenerado += interesGenerado;
-      capitalTotal = capitalInicialAcumulado + totalInteresGenerado;
+      // Calcular capital total (incluye intereses entregados en periodos no finales)
+      const capitalTotal = capitalActual + (esUltimoPeriodoDelAno ? 0 : interesEntregado);
 
       resultsCalculados.push({
-        periodo: `P${i}`,
+        periodo: `${periodoLabel} ${periodo % periodosPorAno || periodosPorAno}`,
         año: anoActual,
         edad: edadActual + anoActual - 1,
-        capitalInicial: capitalInicialNum.toFixed(2),
+        capitalInicial: capitalActual.toFixed(2),
         capitalAdicional: aportacion.toFixed(2),
-        saldoAcumulado: capitalInicialAcumulado.toFixed(2),
+        saldoAcumulado: capitalActual.toFixed(2),
         interesGenerado: interesGenerado.toFixed(2),
-        interesRecapitalizado: interesRecapitalizado.toFixed(2),
+        interesRecapitalizado: esUltimoPeriodoDelAno ? interesRecapitalizado.toFixed(2) : "0.00",
         interesEntregado: interesEntregado.toFixed(2),
         capitalTotal: capitalTotal.toFixed(2),
+        esUltimoPeriodoDelAno
       });
-      anoAnt = anoActual;
     }
 
     onCalculate(resultsCalculados, formData);
