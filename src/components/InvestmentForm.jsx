@@ -355,7 +355,7 @@ const InvestmentForm = ({ onCalculate }) => {
 
               {/* Entrega de Intereses */}
               <div>
-                <label className="block text-sm font-medium text-gray-700">Entrega de Intereses:</label>
+                <label className="block text-sm font-medium text-gray-700">Generación de Rendimientos:</label>
                 <select
                   name="entregaIntereses"
                   value={formData.entregaIntereses}
